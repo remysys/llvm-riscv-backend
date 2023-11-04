@@ -10,6 +10,7 @@ add_public_tablegen_target(RRISCVCommonTableGen)
 add_llvm_target(RRISCVCodeGen
   RRISCVTargetMachine.cpp
   RRISCVISelDAGToDAG.cpp
+  RRISCVAsmPrinter.cpp
 )
 
 add_subdirectory(TargetInfo)

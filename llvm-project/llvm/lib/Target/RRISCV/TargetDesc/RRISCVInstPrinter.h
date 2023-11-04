@@ -22,7 +22,6 @@ public:
   static const char *getRegisterName(unsigned RegNo);
   static const char *getRegisterName(unsigned RegNo, unsigned AltIdx);
   bool printAliasInstr(const MCInst *MI, uint64_t Address, raw_ostream &OS);
-
 };
 
 } // namespace llvm
