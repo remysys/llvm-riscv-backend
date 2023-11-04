@@ -4,6 +4,7 @@
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/ADT/None.h"
+#include "RRISCVInstPrinter.h"
 
 #define GET_SUBTARGETINFO_MC_DESC
 #include "RRISCVGenSubtargetInfo.inc"
@@ -34,10 +35,19 @@ static MCRegisterInfo *createRRISCVMCRegisterInfo(Triple const &TT) {
   return x;
 }
 
+static MCInstPrinter *createRRISCVInstPrinter(Triple const &T,
+                                           unsigned SyntaxVariant,
+                                           MCAsmInfo const &MAI,
+                                           MCInstrInfo const &MII,
+                                           MCRegisterInfo const &MRI) {
+  return new RRISCVInstPrinter(MAI, MII, MRI);
+}
+
 extern "C" void LLVMInitializeRRISCVTargetMC() {
   TargetRegistry::RegisterMCRegInfo(TheRRISCVTarget, createRRISCVMCRegisterInfo);
   TargetRegistry::RegisterMCInstrInfo(TheRRISCVTarget, createRRISCVMCInstrInfo);
   TargetRegistry::RegisterMCSubtargetInfo(TheRRISCVTarget,
                                           createRRISCVMCSubtargetInfo);
   TargetRegistry::RegisterMCAsmInfo(TheRRISCVTarget, createRRISCVMCAsmInfo);
+  TargetRegistry::RegisterMCInstPrinter(TheRRISCVTarget, createRRISCVInstPrinter);
 }
