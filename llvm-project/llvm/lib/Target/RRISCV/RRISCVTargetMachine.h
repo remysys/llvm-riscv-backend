@@ -14,6 +14,7 @@ public:
                    bool JIT);
 
   ~RRISCVTargetMachine() {}
+  TargetPassConfig *createPassConfig(PassManagerBase &PM) override;
 };
 } // namespace llvm
 
