@@ -19,9 +19,13 @@ RRISCVTargetMachine::RRISCVTargetMachine(const Target &T, const Triple &TT, Stri
                    bool JIT)
     : LLVMTargetMachine(T, "e-m:m-p:32:32-i8:8:32-i16:16:32-i64:64-n32-S64", TT,
                         CPU, FS, Options, Reloc::Static, CodeModel::Small, OL), 
-                        TLOF(std::make_unique<RRISCVTargetObjectFile>()) {
+                        TLOF(std::make_unique<RRISCVTargetObjectFile>()),
+                        Subtarget(std::make_unique<RRISCVSubtarget>(TT, CPU, CPU, FS, *this)) {
   initAsmInfo();
 }
+
+const RRISCVSubtarget*
+RRISCVTargetMachine::getSubtargetImpl(const Function &F) const { return Subtarget.get(); }
 
 class RRISCVPassConfig : public TargetPassConfig {
 public:
