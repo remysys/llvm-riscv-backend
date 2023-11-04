@@ -1,1 +1,43 @@
-extern "C" void LLVMInitializeRRISCVTargetMC() {}
+#include "llvm/MC/MCAsmInfo.h"
+#include "llvm/MC/MCInstrInfo.h"
+#include "llvm/MC/MCRegisterInfo.h"
+#include "llvm/MC/MCSubtargetInfo.h"
+#include "llvm/MC/TargetRegistry.h"
+#include "llvm/ADT/None.h"
+
+#define GET_SUBTARGETINFO_MC_DESC
+#include "RRISCVGenSubtargetInfo.inc"
+
+using namespace llvm;
+
+extern Target TheRRISCVTarget;
+
+static MCAsmInfo *createRRISCVMCAsmInfo(MCRegisterInfo const &MRI,
+                                     Triple const &TT,
+                                     MCTargetOptions const &Options) {
+  MCAsmInfo *x = new MCAsmInfo();
+  return x;
+}
+
+static MCSubtargetInfo *createRRISCVMCSubtargetInfo(Triple const &TT,
+                                                 StringRef CPU, StringRef FS) {
+  return createRRISCVMCSubtargetInfoImpl(TT, CPU, CPU, FS);
+}
+
+static MCInstrInfo *createRRISCVMCInstrInfo() {
+  MCInstrInfo *x = new MCInstrInfo();
+  return x;
+}
+
+static MCRegisterInfo *createRRISCVMCRegisterInfo(Triple const &TT) {
+  MCRegisterInfo *x = new MCRegisterInfo();
+  return x;
+}
+
+extern "C" void LLVMInitializeRRISCVTargetMC() {
+  TargetRegistry::RegisterMCRegInfo(TheRRISCVTarget, createRRISCVMCRegisterInfo);
+  TargetRegistry::RegisterMCInstrInfo(TheRRISCVTarget, createRRISCVMCInstrInfo);
+  TargetRegistry::RegisterMCSubtargetInfo(TheRRISCVTarget,
+                                          createRRISCVMCSubtargetInfo);
+  TargetRegistry::RegisterMCAsmInfo(TheRRISCVTarget, createRRISCVMCAsmInfo);
+}
