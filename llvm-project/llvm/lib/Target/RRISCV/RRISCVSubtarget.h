@@ -4,6 +4,7 @@
 #include <llvm/ADT/None.h>
 #include <llvm/CodeGen/TargetSubtargetInfo.h>
 #include <llvm/MC/MCInst.h>
+#include "RRISCVISelLowering.h"
 
 #define GET_SUBTARGETINFO_HEADER
 #include "RRISCVGenSubtargetInfo.inc"
@@ -11,13 +12,18 @@
 namespace llvm {
 class RRISCVTargetMachine;
 class RRISCVSubtarget : public RRISCVGenSubtargetInfo {
+private:
+  RRISCVTargetLowering TLInfo;
 public:
   RRISCVSubtarget(const Triple &TT, StringRef &CPU, StringRef &TuneCPU,
-               StringRef &FS, const RRISCVTargetMachine &TTM);
+               StringRef &FS, const TargetMachine &TM);
 
   ~RRISCVSubtarget() override {}
 
   void ParseSubtargetFeatures(StringRef CPU, StringRef TuneCPU, StringRef FS);
+  const RRISCVTargetLowering *getTargetLowering() const override {
+    return &TLInfo;
+  }
 };
 } // namespace llvm
 

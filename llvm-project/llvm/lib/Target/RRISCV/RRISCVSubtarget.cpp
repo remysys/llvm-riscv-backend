@@ -10,5 +10,5 @@
 using namespace llvm;
 
 RRISCVSubtarget::RRISCVSubtarget(const Triple &TT, StringRef &CPU, StringRef &TuneCPU,
-                           StringRef &FS, const RRISCVTargetMachine &TTM)
-    : RRISCVGenSubtargetInfo(TT, CPU, TuneCPU, FS) {}
+                           StringRef &FS, const TargetMachine &TM)
+    : RRISCVGenSubtargetInfo(TT, CPU, TuneCPU, FS), TLInfo(TM, *this) {}

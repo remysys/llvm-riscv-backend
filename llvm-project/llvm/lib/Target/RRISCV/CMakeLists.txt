@@ -13,6 +13,7 @@ add_llvm_target(RRISCVCodeGen
   RRISCVAsmPrinter.cpp
   RRISCVTargetObjectFile.cpp
   RRISCVSubtarget.cpp
+  RRISCVISelLowering.cpp
 )
 
 add_subdirectory(TargetInfo)
