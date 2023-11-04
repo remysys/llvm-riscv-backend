@@ -11,6 +11,7 @@ add_llvm_target(RRISCVCodeGen
   RRISCVTargetMachine.cpp
   RRISCVISelDAGToDAG.cpp
   RRISCVAsmPrinter.cpp
+  RRISCVTargetObjectFile.cpp
 )
 
 add_subdirectory(TargetInfo)
