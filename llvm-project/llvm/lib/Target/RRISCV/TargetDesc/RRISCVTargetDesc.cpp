@@ -1,3 +1,4 @@
+#include "RRISCVTargetDesc.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
@@ -5,6 +6,13 @@
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/ADT/None.h"
 #include "RRISCVInstPrinter.h"
+
+#define GET_INSTRINFO_MC_DESC
+#define ENABLE_INSTR_PREDICATE_VERIFIER
+#include "RRISCVGenInstrInfo.inc"
+
+#define GET_REGINFO_MC_DESC
+#include "RRISCVGenRegisterInfo.inc"
 
 #define GET_SUBTARGETINFO_MC_DESC
 #include "RRISCVGenSubtargetInfo.inc"

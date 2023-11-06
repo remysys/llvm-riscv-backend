@@ -6,6 +6,7 @@
 #include <llvm/MC/MCInst.h>
 #include "RRISCVISelLowering.h"
 #include "RRISCVFrameLowering.h"
+#include "RRISCVInstrInfo.h"
 
 #define GET_SUBTARGETINFO_HEADER
 #include "RRISCVGenSubtargetInfo.inc"
@@ -16,6 +17,7 @@ class RRISCVSubtarget : public RRISCVGenSubtargetInfo {
 private:
   RRISCVTargetLowering TLInfo;
   RRISCVFrameLowering FrameLowering;
+  RRISCVInstrInfo InstrInfo;
 public:
   RRISCVSubtarget(const Triple &TT, StringRef &CPU, StringRef &TuneCPU,
                StringRef &FS, const TargetMachine &TM);
@@ -30,6 +32,8 @@ public:
   const RRISCVFrameLowering *getFrameLowering() const override {
     return &FrameLowering;
   }
+
+  const RRISCVInstrInfo *getInstrInfo() const override { return &InstrInfo; }
 };
 } // namespace llvm
 

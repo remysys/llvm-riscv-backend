@@ -1,5 +1,7 @@
 include "llvm/Target/Target.td"
 include "RRISCVRegisterInfo.td"
+include "RRISCVSchedule.td"
+include "RRISCVInstrInfo.td"
 
 def : ProcessorModel<"generic-rrv32", NoSchedModel, []>;
 

@@ -3,6 +3,7 @@
 
 #include "RRISCVTargetMachine.h"
 #include <llvm/CodeGen/SelectionDAGISel.h>
+#include "TargetDesc/RRISCVTargetDesc.h"
 
 namespace llvm {
 class RRISCVDAGToDAGISel : public SelectionDAGISel {
@@ -16,6 +17,8 @@ public:
   }
 
   void Select(SDNode *N) override;
+  bool SelectAddrFI(SDNode *Parent, SDValue N, SDValue &Base, SDValue &Offset);
+  
   #include "RRISCVGenDAGISel.inc"
 };
 

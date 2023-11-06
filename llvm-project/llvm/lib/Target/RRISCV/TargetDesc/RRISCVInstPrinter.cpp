@@ -11,4 +11,8 @@ void RRISCVInstPrinter::printInst(MCInst const *MI, uint64_t Address, StringRef 
 
 void RRISCVInstPrinter::printRegName(raw_ostream &OS, unsigned RegNo) const {}
 
-void RRISCVInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, const MCSubtargetInfo &STI, raw_ostream &O, const char *Modifier) {}
+// void RRISCVInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, const MCSubtargetInfo &STI, raw_ostream &O, const char *Modifier) {}
+
+void RRISCVInstPrinter::printOperand(const MCInst *MI, unsigned OpNo, raw_ostream &OS) {}
+
+void RRISCVInstPrinter::printOperand(const MCInst *MI, uint64_t _Address, unsigned OpNum, raw_ostream &O) {}
