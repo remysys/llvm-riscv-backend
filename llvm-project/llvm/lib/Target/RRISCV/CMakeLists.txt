@@ -18,6 +18,7 @@ add_llvm_target(RRISCVCodeGen
   RRISCVISelLowering.cpp
   RRISCVFrameLowering.cpp
   RRISCVInstrInfo.cpp
+  RRISCVRegisterInfo.cpp
 )
 
 add_subdirectory(TargetInfo)
