@@ -2,6 +2,7 @@
 #define LLVM_LIB_TARGET_RRISCV_RRISCVINSTRINFO_H
 
 #include "llvm/CodeGen/TargetInstrInfo.h"
+#include "TargetDesc/RRISCVTargetDesc.h"
 
 #define GET_INSTRINFO_HEADER
 #include "RRISCVGenInstrInfo.inc"
@@ -11,6 +12,12 @@ class RRISCVInstrInfo : public RRISCVGenInstrInfo {
 
 public:
   RRISCVInstrInfo();
+  
+  void storeRegToStackSlot(MachineBasicBlock &MBB,
+                            MachineBasicBlock::iterator MBBI, Register SrcReg,
+                            bool IsKill, int FrameIndex,
+                            const TargetRegisterClass *RC,
+                            const TargetRegisterInfo *TRI) const override;
 };
 
 } // namespace llvm

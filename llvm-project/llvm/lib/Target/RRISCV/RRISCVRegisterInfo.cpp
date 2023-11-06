@@ -2,6 +2,8 @@
 #include "TargetDesc/RRISCVTargetDesc.h"
 #include "RRISCVSubtarget.h"
 
+#define DEBUG_TYPE "rriscv register info"
+
 #define GET_REGINFO_TARGET_DESC
 #include "RRISCVGenRegisterInfo.inc"
 
@@ -13,6 +15,8 @@ RRISCVRegisterInfo::RRISCVRegisterInfo(RRISCVSubtarget const &ST, unsigned HwMod
 void RRISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
                                           int SPAdj, unsigned FIOperandNum,
                                           RegScavenger *RS) const {
+  MachineInstr &MI = *II;
+  LLVM_DEBUG(errs() << MI);
   return;
 }
 
