@@ -1,6 +1,6 @@
 #include "RRISCVRegisterInfo.h"
-#include "TargetDesc/RRISCVTargetDesc.h"
 #include "RRISCVSubtarget.h"
+#include "TargetDesc/RRISCVTargetDesc.h"
 #include <llvm/CodeGen/MachineFrameInfo.h>
 
 #define DEBUG_TYPE "rriscv register info"
@@ -10,12 +10,13 @@
 
 using namespace llvm;
 
-RRISCVRegisterInfo::RRISCVRegisterInfo(RRISCVSubtarget const &ST, unsigned HwMode)
+RRISCVRegisterInfo::RRISCVRegisterInfo(RRISCVSubtarget const &ST,
+                                       unsigned HwMode)
     : RRISCVGenRegisterInfo(0, 0, 0, 0, HwMode) {}
 
 void RRISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
-                                          int SPAdj, unsigned FIOperandNum,
-                                          RegScavenger *RS) const {
+                                             int SPAdj, unsigned FIOperandNum,
+                                             RegScavenger *RS) const {
   MachineInstr &MI = *II;
   LLVM_DEBUG(errs() << MI);
   int i = 0;
@@ -29,7 +30,7 @@ void RRISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   int64_t offset = MFI.getObjectOffset(FI);
   uint64_t stack_size = MFI.getStackSize();
   offset += (int64_t)stack_size;
-  
+
   MI.getOperand(i).ChangeToRegister(RRISCV::SP, false);
   MI.getOperand(i + 1).ChangeToImmediate(offset);
 
@@ -42,7 +43,7 @@ RRISCVRegisterInfo::getCalleeSavedRegs(MachineFunction const *MF) const {
 }
 
 BitVector RRISCVRegisterInfo::getReservedRegs(MachineFunction const &MF) const {
-  constexpr uint16_t ReservedCPURegs[] = {RRISCV::ZERO};
+  constexpr uint16_t ReservedCPURegs[] = {RRISCV::ZERO, RRISCV::RA, RRISCV::SP};
   BitVector Reserved(getNumRegs());
   for (auto const reg : ReservedCPURegs) {
     Reserved.set(reg);

@@ -1,8 +1,8 @@
+#include "RRISCVMCInstLower.h"
 #include "RRISCVTargetMachine.h"
+#include "llvm/MC/TargetRegistry.h"
 #include <llvm/CodeGen/AsmPrinter.h>
 #include <llvm/MC/MCStreamer.h>
-#include "llvm/MC/TargetRegistry.h"
-#include "RRISCVMCInstLower.h"
 using namespace llvm;
 
 namespace llvm {
@@ -10,11 +10,14 @@ class MachineInstr;
 class RRISCVAsmPrinter : public AsmPrinter {
 private:
   RRISCVMCInstLower MCInstLowering;
+
 public:
   RRISCVAsmPrinter(TargetMachine &TM, std::unique_ptr<MCStreamer> Streamer)
       : AsmPrinter(TM, std::move(Streamer)) {}
 
-  virtual StringRef getPassName() const override { return "RRISCV Assembly Printer"; }
+  virtual StringRef getPassName() const override {
+    return "RRISCV Assembly Printer";
+  }
   void emitInstruction(const MachineInstr *MI) override;
 };
 } // namespace llvm
@@ -27,7 +30,7 @@ void RRISCVAsmPrinter::emitInstruction(const MachineInstr *MI) {
     MCInst TmpMCInst;
     MCInstLowering.Lower(&*I, TmpMCInst);
     OutStreamer->emitInstruction(TmpMCInst, getSubtargetInfo());
-  } while (++I != E);
+  } while (++I != E && I->isInsideBundle());
 }
 
 extern Target TheRRISCVTarget;
