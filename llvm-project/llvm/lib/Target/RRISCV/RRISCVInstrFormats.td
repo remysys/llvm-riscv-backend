@@ -18,3 +18,6 @@ class InstI<dag outs, dag ins, string asm, list<dag> pattern,
 
 class InstR<dag outs, dag ins, string asm, list<dag> pattern,
       InstrItinClass itin>: RRISCVInst<outs, ins, asm, pattern, itin> {}
+
+class InstU<dag outs, dag ins, string asm, list<dag> pattern,
+      InstrItinClass itin>: RRISCVInst<outs, ins, asm, pattern, itin> {}

@@ -1,6 +1,7 @@
 include "RRISCVInstrFormats.td"
 
 def imm12 : Operand<i32>, ImmLeaf<i32, [{return isInt<12>(Imm);}]>;
+def imm20 : Operand<i32>, ImmLeaf<i32, [{return isInt<20>(Imm);}]>;
 
 def mem : Operand<iPTR> {
   let MIOperandInfo = (ops GPR, imm12);
@@ -30,11 +31,21 @@ def REM : ArithLogicR<"rem", srem>;
 def AND : ArithLogicR<"and", and>;
 def OR  : ArithLogicR<"or", or>;
 
+def RRISCVHi    : SDNode<"RRISCVISD::Hi", SDTIntUnaryOp>;
+def RRISCVLo    : SDNode<"RRISCVISD::Lo", SDTIntUnaryOp>;
+
+def LUI : InstU<(outs GPR:$rd), (ins imm20:$imm),
+          "lui $rd, $imm", [], IIAlu>;
+
+def : Pat<(RRISCVHi tglobaladdr:$in), (LUI tglobaladdr:$in)>;
+def : Pat<(add GPR:$hi, (RRISCVLo tglobaladdr:$lo)), (ADDI GPR:$hi, tglobaladdr:$lo)>;
+
 def AddrFI : ComplexPattern<iPTR, 2, "SelectAddrFI", [frameindex], [SDNPWantParent]>;
 
 def STORE : RRISCVInst<(outs), (ins GPR:$ra, mem:$addr), "sw \t$ra, $addr", [], IIAlu>;
 
-def LOAD : RRISCVInst<(outs GPR:$ra), (ins mem:$addr), "lw \t$ra, $addr", [], IIAlu>;
+def LOADFI : RRISCVInst<(outs GPR:$ra), (ins mem:$addr), "lw \t$ra, $addr", [], IIAlu>;
+def LOAD : RRISCVInst<(outs GPR:$ra), (ins GPR:$x), "lw \t$ra, $x", [], IIAlu>;
 
 def : Pat<(i32 imm12:$in),
           (ADDI ZERO, imm12:$in)>;
@@ -46,4 +57,7 @@ def : Pat<(store GPR:$ra, AddrFI:$addr),
 //          [(set GPR:$ra, (load AddrFI:$addr))],
 //          IIAlu>;
 def : Pat<(load AddrFI:$addr),
-          (LOAD  AddrFI:$addr)>;
+          (LOADFI AddrFI:$addr)>;
+
+def : Pat<(load GPR:$x),
+          (LOAD GPR:$x)>;

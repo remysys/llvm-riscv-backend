@@ -5,8 +5,18 @@
 #include <llvm/CodeGen/TargetLowering.h>
 
 namespace llvm {
+namespace RRISCVISD {
+enum NodeType {
+  FIRST_NUMBER = ISD::BUILTIN_OP_END,
+  Hi,
+  Lo,
+};
+}
 class RRISCVSubtarget;
 class RRISCVTargetLowering : public TargetLowering {
+private:
+  SDValue lowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const;
+
 public:
   RRISCVTargetLowering(const TargetMachine &TM, const RRISCVSubtarget &STI);
 
@@ -20,6 +30,8 @@ public:
                       const SmallVectorImpl<ISD::OutputArg> &Outs,
                       const SmallVectorImpl<SDValue> &OutVals, const SDLoc &DL,
                       SelectionDAG &DAG) const override;
+  SDValue LowerOperation(SDValue Op, SelectionDAG &DAG) const override;
+  const char *getTargetNodeName(unsigned Opcode) const override;
 };
 } // namespace llvm
 
