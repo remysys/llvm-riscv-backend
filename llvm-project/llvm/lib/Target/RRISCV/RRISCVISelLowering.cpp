@@ -1,4 +1,5 @@
 #include "RRISCVISelLowering.h"
+#include "TargetDesc/RRISCVTargetDesc.h"
 
 using namespace llvm;
 
@@ -40,8 +41,10 @@ SDValue RRISCVTargetLowering::lowerGlobalAddress(SDValue Op,
   SDLoc DL(N);
   SDValue Hi = DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, 1);
   SDValue Lo = DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, 2);
-  return DAG.getNode(ISD::ADD, DL, Ty, DAG.getNode(RRISCVISD::Hi, DL, Ty, Hi),
-                     DAG.getNode(RRISCVISD::Lo, DL, Ty, Lo));
+  // return DAG.getNode(ISD::ADD, DL, Ty, DAG.getNode(RRISCVISD::Hi, DL, Ty,
+  // Hi), DAG.getNode(RRISCVISD::Lo, DL, Ty, Lo));
+  SDValue MNHi = SDValue(DAG.getMachineNode(RRISCV::LUI, DL, Ty, Hi), 0);
+  return SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
 }
 
 const char *RRISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {

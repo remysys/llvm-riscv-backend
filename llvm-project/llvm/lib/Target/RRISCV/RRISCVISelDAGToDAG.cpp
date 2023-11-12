@@ -2,10 +2,16 @@
 
 using namespace llvm;
 
-void RRISCVDAGToDAGISel::Select(SDNode *N) { SelectCode(N); }
+void RRISCVDAGToDAGISel::Select(SDNode *N) {
+  if (N->isMachineOpcode()) {
+    N->setNodeId(-1);
+    return;
+  }
+  SelectCode(N);
+}
 
-bool RRISCVDAGToDAGISel::SelectAddrFI(SDNode *Parent, SDValue Addr, SDValue &Base,
-                                   SDValue &Offset) {
+bool RRISCVDAGToDAGISel::SelectAddrFI(SDNode *Parent, SDValue Addr,
+                                      SDValue &Base, SDValue &Offset) {
   EVT ValTy = Addr.getValueType();
   SDLoc DL(Addr);
   if (FrameIndexSDNode *FIN = dyn_cast<FrameIndexSDNode>(Addr)) {
