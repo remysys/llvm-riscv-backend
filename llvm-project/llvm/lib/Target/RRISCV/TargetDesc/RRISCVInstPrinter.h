@@ -8,8 +8,8 @@
 namespace llvm {
 class RRISCVInstPrinter : public MCInstPrinter {
 public:
-  RRISCVInstPrinter(MCAsmInfo const &MAI, MCInstrInfo const &MII,
-                    MCRegisterInfo const &MRI)
+  RRISCVInstPrinter(const MCAsmInfo &MAI, const MCInstrInfo &MII,
+                    const MCRegisterInfo &MRI)
       : MCInstPrinter(MAI, MII, MRI) {}
 
   void printInst(MCInst const *MI, uint64_t Address, StringRef Annot,

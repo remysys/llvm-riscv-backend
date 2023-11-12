@@ -1,5 +1,6 @@
 #include "RRISCVInstPrinter.h"
 #include "llvm/MC/MCInst.h"
+#include "llvm/MC/MCExpr.h"
 
 #define DEBUG_TYPE "rriscv instr printer"
 #include <llvm/Support/Debug.h>
@@ -35,6 +36,8 @@ void RRISCVInstPrinter::printOperand(const MCInst *MI, unsigned OpNo,
     OS << Op.getImm();
     return;
   }
+
+  Op.getExpr()->print(OS, &MAI, true);
 }
 
 void RRISCVInstPrinter::printOperand(const MCInst *MI, uint64_t _Address,

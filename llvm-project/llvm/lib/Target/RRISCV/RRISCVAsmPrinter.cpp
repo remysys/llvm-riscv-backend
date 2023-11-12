@@ -1,26 +1,11 @@
+#include "RRISCVAsmPrinter.h"
 #include "RRISCVMCInstLower.h"
 #include "RRISCVTargetMachine.h"
 #include "llvm/MC/TargetRegistry.h"
 #include <llvm/CodeGen/AsmPrinter.h>
 #include <llvm/MC/MCStreamer.h>
+
 using namespace llvm;
-
-namespace llvm {
-class MachineInstr;
-class RRISCVAsmPrinter : public AsmPrinter {
-private:
-  RRISCVMCInstLower MCInstLowering;
-
-public:
-  RRISCVAsmPrinter(TargetMachine &TM, std::unique_ptr<MCStreamer> Streamer)
-      : AsmPrinter(TM, std::move(Streamer)) {}
-
-  virtual StringRef getPassName() const override {
-    return "RRISCV Assembly Printer";
-  }
-  void emitInstruction(const MachineInstr *MI) override;
-};
-} // namespace llvm
 
 void RRISCVAsmPrinter::emitInstruction(const MachineInstr *MI) {
   MachineBasicBlock::const_instr_iterator I = MI->getIterator();
