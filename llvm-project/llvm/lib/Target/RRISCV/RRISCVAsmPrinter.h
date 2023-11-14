@@ -20,6 +20,8 @@ public:
     return "rriscv asm printer";
   }
   void emitInstruction(const MachineInstr *MI) override;
+  bool emitPseudoExpansionLowering(MCStreamer &OutStreamer,
+                                   const MachineInstr *MI);
 };
 } // namespace llvm
 

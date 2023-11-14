@@ -6,6 +6,7 @@ tablegen(LLVM RRISCVGenDAGISel.inc -gen-dag-isel)
 tablegen(LLVM RRISCVGenAsmWriter.inc -gen-asm-writer)
 tablegen(LLVM RRISCVGenInstrInfo.inc -gen-instr-info)
 tablegen(LLVM RRISCVGenRegisterInfo.inc -gen-register-info)
+tablegen(LLVM RRISCVGenMCPseudoLowering.inc -gen-pseudo-lowering)
 add_public_tablegen_target(RRISCVCommonTableGen)
 
 

@@ -49,9 +49,6 @@ def : Pat<(i32 imm12:$in),
           (ADDI ZERO, imm12:$in)>;
 
 def : Pat<(store GPR:$ra, AddrFI:$addr),
-          (STORE GPR:$ra, AddrFI:$addr)>;
-
-def : Pat<(store GPR:$ra, AddrFI:$addr),
           (STOREFI GPR:$ra, AddrFI:$addr)>;
 
 def : Pat<(store GPR:$x, GPR:$y),
@@ -65,3 +62,13 @@ def : Pat<(load AddrFI:$addr),
 
 def : Pat<(load GPR:$x),
           (LOAD GPR:$x)>;
+
+def RRISCVRET : SDNode<"RRISCVISD::Ret", SDTNone,
+                             [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
+
+def JALR : InstI<(outs GPR:$rd),(ins GPR:$rs1, imm12:$imm12),
+           "jalr $rd, ${imm12}(${rs1})", [],
+           IIAlu>;
+
+// def RET : InstI<(outs),(ins), "jalr zero, 0(ra)", [(RRISCVRET)], IIAlu>;
+def RET : Pseudo<(outs), (ins), [(RRISCVRET)]>, PseudoInstExpansion<(JALR ZERO, RA, 0)>;

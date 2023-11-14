@@ -23,7 +23,9 @@ RRISCVTargetLowering::LowerReturn(SDValue Chain, CallingConv::ID CallConv,
                                   const SmallVectorImpl<ISD::OutputArg> &Outs,
                                   const SmallVectorImpl<SDValue> &OutVals,
                                   const SDLoc &DL, SelectionDAG &DAG) const {
-  return Chain;
+  SmallVector<SDValue, 4> Ops(1, Chain);
+  Ops[0] = Chain;
+  return DAG.getNode(RRISCVISD::Ret, DL, MVT::Other, Ops);
 }
 
 SDValue RRISCVTargetLowering::LowerOperation(SDValue Op,
@@ -56,6 +58,8 @@ const char *RRISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {
     return "RRISCVISD::Hi";
   case RRISCVISD::Lo:
     return "RRISCVISD::Lo";
+  case RRISCVISD::Ret:
+    return "RRISCVISD::Ret";
   default:
     return NULL;
   }

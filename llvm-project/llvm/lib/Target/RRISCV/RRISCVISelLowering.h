@@ -10,6 +10,7 @@ enum NodeType {
   FIRST_NUMBER = ISD::BUILTIN_OP_END,
   Hi,
   Lo,
+  Ret,
 };
 }
 class RRISCVSubtarget;

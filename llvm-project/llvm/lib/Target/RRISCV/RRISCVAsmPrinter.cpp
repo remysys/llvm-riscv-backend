@@ -7,7 +7,12 @@
 
 using namespace llvm;
 
+#include "RRISCVGenMCPseudoLowering.inc"
 void RRISCVAsmPrinter::emitInstruction(const MachineInstr *MI) {
+  if (emitPseudoExpansionLowering(*OutStreamer, MI)) {
+    return;
+  }
+
   MachineBasicBlock::const_instr_iterator I = MI->getIterator();
   MachineBasicBlock::const_instr_iterator E = MI->getParent()->instr_end();
 

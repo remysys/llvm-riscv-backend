@@ -21,3 +21,9 @@ class InstR<dag outs, dag ins, string asm, list<dag> pattern,
 
 class InstU<dag outs, dag ins, string asm, list<dag> pattern,
       InstrItinClass itin>: RRISCVInst<outs, ins, asm, pattern, itin> {}
+
+class Pseudo<dag outs, dag ins, list<dag> pattern>
+    : RRISCVInst<outs, ins, "", pattern, IIAlu> {
+  let isPseudo = 1;
+  let isCodeGenOnly = 1;
+}
