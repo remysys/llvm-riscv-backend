@@ -4,7 +4,6 @@
 using namespace llvm;
 
 void RRISCVMCExpr::printImpl(raw_ostream &OS, const MCAsmInfo *MAI) const {
-  int64_t AbsVal;
 
   switch (Kind) {
   default:

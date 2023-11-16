@@ -11,6 +11,7 @@ enum NodeType {
   Hi,
   Lo,
   Ret,
+  Call,
 };
 }
 class RRISCVSubtarget;
@@ -33,6 +34,9 @@ public:
                       SelectionDAG &DAG) const override;
   SDValue LowerOperation(SDValue Op, SelectionDAG &DAG) const override;
   const char *getTargetNodeName(unsigned Opcode) const override;
+
+  SDValue LowerCall(TargetLowering::CallLoweringInfo &CLI,
+                    SmallVectorImpl<SDValue> &InVals) const override;
 };
 } // namespace llvm
 

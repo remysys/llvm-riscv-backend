@@ -64,3 +64,29 @@ const char *RRISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {
     return NULL;
   }
 }
+
+SDValue
+RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
+                                SmallVectorImpl<SDValue> &InVals) const {
+  SelectionDAG &DAG = CLI.DAG;
+  SDLoc DL = CLI.DL;
+  SDValue Chain = CLI.Chain;
+  SDValue Callee = CLI.Callee;
+
+  GlobalAddressSDNode *N = dyn_cast<GlobalAddressSDNode>(Callee);
+
+  EVT Ty = getPointerTy(DAG.getDataLayout());
+  SDValue Hi =
+      DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, RRISCVII::MO_HI);
+  SDValue Lo =
+      DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, RRISCVII::MO_LO);
+  SDValue MNHi = SDValue(DAG.getMachineNode(RRISCV::LUI, DL, Ty, Hi), 0);
+
+  Callee = SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
+
+  SmallVector<SDValue, 8> Ops(1, Chain);
+  Ops.push_back(Callee);
+  SDVTList NodeTys = DAG.getVTList(MVT::Other, MVT::Glue);
+  Chain = DAG.getNode(RRISCVISD::Call, DL, NodeTys, Ops);
+  return Chain;
+}
