@@ -4,9 +4,13 @@
 #include "llvm/CodeGen/TargetFrameLowering.h"
 
 namespace llvm {
+class RRISCVSubtarget;
 class RRISCVFrameLowering : public TargetFrameLowering {
+private:
+  RRISCVSubtarget &STI;
+
 public:
-  RRISCVFrameLowering();
+  RRISCVFrameLowering(RRISCVSubtarget &sti);
   void emitPrologue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
   void emitEpilogue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
   bool hasFP(const MachineFunction &MF) const override;

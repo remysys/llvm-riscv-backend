@@ -30,7 +30,7 @@ void RRISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   int64_t offset = MFI.getObjectOffset(FI);
   uint64_t stack_size = MFI.getStackSize();
   offset += (int64_t)stack_size;
-
+  
   MI.getOperand(i).ChangeToRegister(RRISCV::SP, false);
   MI.getOperand(i + 1).ChangeToImmediate(offset);
 
