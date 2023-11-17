@@ -38,6 +38,17 @@ void analyzeCallOperands(const SmallVectorImpl<ISD::OutputArg> &Args,
   }
 }
 
+void analyzeReturn(const SmallVectorImpl<ISD::OutputArg> &Args,
+                   CCState &CCInfo) {
+  unsigned NumArgs = Args.size();
+
+  for (unsigned I = 0; I != NumArgs; ++I) {
+    MVT ArgVT = Args[I].VT;
+    ISD::ArgFlagsTy ArgFlags = Args[I].Flags;
+    RRISCVCC(I, ArgVT, ArgVT, CCValAssign::Full, ArgFlags, CCInfo);
+  }
+}
+
 SDValue RRISCVTargetLowering::LowerFormalArguments(
     SDValue Chain, CallingConv::ID CallConv, bool IsVarArg,
     const SmallVectorImpl<ISD::InputArg> &Ins, const SDLoc &DL,
@@ -70,6 +81,16 @@ RRISCVTargetLowering::LowerReturn(SDValue Chain, CallingConv::ID CallConv,
                                   const SmallVectorImpl<ISD::OutputArg> &Outs,
                                   const SmallVectorImpl<SDValue> &OutVals,
                                   const SDLoc &DL, SelectionDAG &DAG) const {
+  SmallVector<CCValAssign, 2> RVLocs;
+  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(), RVLocs,
+                 *DAG.getContext());
+  analyzeReturn(Outs, CCInfo);
+  for (unsigned i = 0, e = RVLocs.size(); i != e; ++i) {
+    CCValAssign &VA = RVLocs[i];
+    assert(VA.isRegLoc());
+    unsigned RVReg = VA.getLocReg();
+    Chain = DAG.getCopyToReg(Chain, DL, RVReg, OutVals[i]);
+  }
   SmallVector<SDValue, 4> Ops(1, Chain);
   Ops[0] = Chain;
   return DAG.getNode(RRISCVISD::Ret, DL, MVT::Other, Ops);
