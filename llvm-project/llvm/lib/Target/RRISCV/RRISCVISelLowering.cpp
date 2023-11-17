@@ -1,19 +1,55 @@
 #include "RRISCVISelLowering.h"
+#include "RRISCVSubtarget.h"
 #include "TargetDesc/RRISCVBaseInfo.h"
 #include "TargetDesc/RRISCVTargetDesc.h"
+#include "llvm/CodeGen/CallingConvLower.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
 
 using namespace llvm;
 
 RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
                                            const RRISCVSubtarget &STI)
     : TargetLowering(TM) {
+  addRegisterClass(MVT::i32, &RRISCV::GPRRegClass);
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
+  computeRegisterProperties(STI.getRegisterInfo());
+}
+
+#include "RRISCVGenCallingConv.inc"
+void analyzeFormalArguments(const SmallVectorImpl<ISD::InputArg> &Args,
+                            CCState &CCInfo) {
+  unsigned NumArgs = Args.size();
+
+  for (unsigned I = 0; I != NumArgs; ++I) {
+    MVT ArgVT = Args[I].VT;
+    ISD::ArgFlagsTy ArgFlags = Args[I].Flags;
+    RRISCVCC(I, ArgVT, ArgVT, CCValAssign::Full, ArgFlags, CCInfo);
+  }
 }
 
 SDValue RRISCVTargetLowering::LowerFormalArguments(
     SDValue Chain, CallingConv::ID CallConv, bool IsVarArg,
     const SmallVectorImpl<ISD::InputArg> &Ins, const SDLoc &DL,
     SelectionDAG &DAG, SmallVectorImpl<SDValue> &InVals) const {
+  MachineFunction &MF = DAG.getMachineFunction();
+
+  SmallVector<CCValAssign, 16> ArgLocs;
+  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(), ArgLocs,
+                 *DAG.getContext());
+
+  analyzeFormalArguments(Ins, CCInfo);
+  for (unsigned i = 0, e = ArgLocs.size(); i != e; ++i) {
+    CCValAssign &VA = ArgLocs[i];
+    assert(VA.isRegLoc());
+    MVT RegVT = VA.getLocVT();
+    unsigned ArgReg = VA.getLocReg();
+    const TargetRegisterClass *RC = getRegClassFor(RegVT);
+
+    unsigned VReg = MF.getRegInfo().createVirtualRegister(RC);
+    MF.getRegInfo().addLiveIn(ArgReg, VReg);
+    SDValue ArgValue = DAG.getCopyFromReg(Chain, DL, VReg, RegVT);
+    InVals.push_back(ArgValue);
+  }
   return Chain;
 }
 
