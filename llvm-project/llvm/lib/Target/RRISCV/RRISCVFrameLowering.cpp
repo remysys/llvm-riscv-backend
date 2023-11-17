@@ -1,6 +1,6 @@
 #include "RRISCVFrameLowering.h"
-#include "TargetDesc/RRISCVTargetDesc.h"
 #include "RRISCVSubtarget.h"
+#include "TargetDesc/RRISCVTargetDesc.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include <llvm/CodeGen/MachineFrameInfo.h>
 #include <llvm/CodeGen/MachineFunction.h>
@@ -47,4 +47,13 @@ void RRISCVFrameLowering::emitEpilogue(MachineFunction &MF,
 
 bool RRISCVFrameLowering::hasFP(const MachineFunction &MF) const {
   return false;
+}
+
+void RRISCVFrameLowering::determineCalleeSaves(MachineFunction &MF,
+                                               BitVector &SavedRegs,
+                                               RegScavenger *RS) const {
+  TargetFrameLowering::determineCalleeSaves(MF, SavedRegs, RS);
+  if (MF.getFrameInfo().hasCalls()) {
+    SavedRegs.set(RRISCV::RA);
+  }
 }

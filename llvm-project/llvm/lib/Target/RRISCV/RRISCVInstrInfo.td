@@ -43,7 +43,7 @@ def STORE : RRISCVInst<(outs), (ins GPR:$ra, GPR:$rb), "sw \t$ra, 0($rb)", [], I
 
 
 def LOADFI : RRISCVInst<(outs GPR:$ra), (ins mem:$addr), "lw \t$ra, $addr", [], IIAlu>;
-def LOAD : RRISCVInst<(outs GPR:$ra), (ins GPR:$x), "lw \t$ra, $x", [], IIAlu>;
+def LOAD : RRISCVInst<(outs GPR:$ra), (ins GPR:$x), "lw \t$ra, 0($x)", [], IIAlu>;
 
 def : Pat<(i32 imm12:$in),
           (ADDI ZERO, imm12:$in)>;
@@ -80,4 +80,8 @@ def SDT_Call : SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
 def RRISCVCall : SDNode<"RRISCVISD::Call", SDT_Call,
                              [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
 
-def CALL : InstI<(outs),(ins GPR:$rs1), "jalr ra, 0($rs1)", [(RRISCVCall GPR:$rs1)], IIAlu>;
+
+// def CALL : InstI<(outs),(ins GPR:$rs1), "jalr ra, 0($rs1)", [(RRISCVCall GPR:$rs1)], IIAlu>;
+def CALL : Pseudo<(outs), (ins GPR:$rs1), [(RRISCVCall GPR:$rs1)]>, PseudoInstExpansion<(JALR RA, GPR:$rs1, 0)> {
+    let isCall = 1;
+}
