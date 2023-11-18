@@ -109,6 +109,7 @@ SDValue RRISCVTargetLowering::lowerGlobalAddress(SDValue Op,
                                                  SelectionDAG &DAG) const {
   EVT Ty = Op.getValueType();
   GlobalAddressSDNode *N = cast<GlobalAddressSDNode>(Op);
+  int64_t Offset = N->getOffset();
   SDLoc DL(N);
   SDValue Hi =
       DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, RRISCVII::MO_HI);
@@ -117,7 +118,13 @@ SDValue RRISCVTargetLowering::lowerGlobalAddress(SDValue Op,
   // return DAG.getNode(ISD::ADD, DL, Ty, DAG.getNode(RRISCVISD::Hi, DL, Ty,
   // Hi), DAG.getNode(RRISCVISD::Lo, DL, Ty, Lo));
   SDValue MNHi = SDValue(DAG.getMachineNode(RRISCV::LUI, DL, Ty, Hi), 0);
-  return SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
+  // return SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
+
+  SDValue Addr = SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
+  if (Offset != 0) {
+    return DAG.getNode(ISD::ADD, DL, Ty, Addr, DAG.getConstant(Offset, DL, Ty));
+  }
+  return Addr;
 }
 
 const char *RRISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {
