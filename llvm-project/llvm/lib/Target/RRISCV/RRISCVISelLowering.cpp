@@ -12,6 +12,8 @@ RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
     : TargetLowering(TM) {
   addRegisterClass(MVT::i32, &RRISCV::GPRRegClass);
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
+  // expand br_cc to setcc and brcond instructions
+  setOperationAction(ISD::BR_CC, MVT::i32, Expand);
   computeRegisterProperties(STI.getRegisterInfo());
 }
 

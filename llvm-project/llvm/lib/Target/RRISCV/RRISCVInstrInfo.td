@@ -93,5 +93,28 @@ def RRISCVCall : SDNode<"RRISCVISD::Call", SDT_Call,
 
 // def CALL : InstI<(outs),(ins GPR:$rs1), "jalr ra, 0($rs1)", [(RRISCVCall GPR:$rs1)], IIAlu>;
 def CALL : Pseudo<(outs), (ins GPR:$rs1), [(RRISCVCall GPR:$rs1)]>, PseudoInstExpansion<(JALR RA, GPR:$rs1, 0)> {
-    let isCall = 1;
+  let isCall = 1;
 }
+
+// for br
+
+def brtarget : Operand<OtherVT>;
+
+def J : InstJ<(outs),(ins brtarget:$imm12),
+           "j ${imm12}", [],
+           IIAlu> {
+  let isTerminator = 1;
+}
+
+def : Pat<(br bb:$imm), (J brtarget:$imm)>;
+
+// for brcond
+
+def BLT : InstB<(outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm), "blt \t$rs1, $rs2, $imm", [], IIAlu>;
+def BNE : InstB<(outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm), "bne \t$rs1, $rs2, $imm", [], IIAlu>;
+def BEQ : InstB<(outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm), "beq \t$rs1, $rs2, $imm", [], IIAlu>;
+
+def : Pat<(brcond (i32 (setlt GPR:$lhs, GPR:$rhs)), bb:$dst), (BLT GPR:$lhs, GPR:$rhs, brtarget:$dst)>;
+def : Pat<(brcond (i32 (setne GPR:$lhs, GPR:$rhs)), bb:$dst), (BNE GPR:$rhs, GPR:$lhs, brtarget:$dst)>;
+def : Pat<(brcond (i32 (seteq GPR:$lhs, GPR:$rhs)), bb:$dst), (BEQ GPR:$rhs, GPR:$lhs, brtarget:$dst)>;
+def : Pat<(brcond (i32 (setgt GPR:$lhs, GPR:$rhs)), bb:$dst), (BLT GPR:$rhs, GPR:$lhs, brtarget:$dst)>;
