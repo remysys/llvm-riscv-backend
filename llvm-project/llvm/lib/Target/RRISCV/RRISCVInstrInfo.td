@@ -48,30 +48,31 @@ def LUI : InstU<(outs GPR:$rd), (ins imm20:$imm),
 
 def AddrFI : ComplexPattern<iPTR, 2, "SelectAddrFI", [frameindex], [SDNPWantParent]>;
 
-def STOREFI : RRISCVInst<(outs), (ins GPR:$ra, mem:$addr), "sw \t$ra, $addr", [], IIAlu>;
-def STORE : RRISCVInst<(outs), (ins GPR:$ra, GPR:$rb), "sw \t$ra, 0($rb)", [], IIAlu>;
+// def STOREFI : RRISCVInst<(outs), (ins GPR:$ra, mem:$addr), "sw \t$ra, $addr", [], IIAlu>;
+// def STORE : RRISCVInst<(outs), (ins GPR:$ra, GPR:$rb), "sw \t$ra, 0($rb)", [], IIAlu>;
 
 
-def LOADFI : RRISCVInst<(outs GPR:$ra), (ins mem:$addr), "lw \t$ra, $addr", [], IIAlu>;
-def LOAD : RRISCVInst<(outs GPR:$ra), (ins GPR:$x), "lw \t$ra, 0($x)", [], IIAlu>;
+// def LOADFI : RRISCVInst<(outs GPR:$ra), (ins mem:$addr), "lw \t$ra, $addr", [], IIAlu>;
+// def LOAD : RRISCVInst<(outs GPR:$ra), (ins GPR:$x), "lw \t$ra, 0($x)", [], IIAlu>;
 
 def : Pat<(i32 imm12:$in),
           (ADDI ZERO, imm12:$in)>;
 
-def : Pat<(store GPR:$ra, AddrFI:$addr),
-          (STOREFI GPR:$ra, AddrFI:$addr)>;
+// def : Pat<(store GPR:$ra, AddrFI:$addr),
+//           (STOREFI GPR:$ra, AddrFI:$addr)>;
 
-def : Pat<(store GPR:$x, GPR:$y),
-          (STORE GPR:$x, GPR:$y)>;
+// def : Pat<(store GPR:$x, GPR:$y),
+//          (STORE GPR:$x, GPR:$y)>;
 
+// NOTE: using Pat is equivalent to the following LOAD definition
 // def LOAD : RRISCVInst<(outs GPR:$ra), (ins mem:$addr), "lw \t$ra, $addr",
 //          [(set GPR:$ra, (load AddrFI:$addr))],
 //          IIAlu>;
-def : Pat<(load AddrFI:$addr),
-          (LOADFI AddrFI:$addr)>;
+// def : Pat<(load AddrFI:$addr),
+//          (LOADFI AddrFI:$addr)>;
 
-def : Pat<(load GPR:$x),
-          (LOAD GPR:$x)>;
+// def : Pat<(load GPR:$x),
+//          (LOAD GPR:$x)>;
 
 def RRISCVRET : SDNode<"RRISCVISD::Ret", SDTNone,
                              [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
@@ -118,3 +119,24 @@ def : Pat<(brcond (i32 (setlt GPR:$lhs, GPR:$rhs)), bb:$dst), (BLT GPR:$lhs, GPR
 def : Pat<(brcond (i32 (setne GPR:$lhs, GPR:$rhs)), bb:$dst), (BNE GPR:$rhs, GPR:$lhs, brtarget:$dst)>;
 def : Pat<(brcond (i32 (seteq GPR:$lhs, GPR:$rhs)), bb:$dst), (BEQ GPR:$rhs, GPR:$lhs, brtarget:$dst)>;
 def : Pat<(brcond (i32 (setgt GPR:$lhs, GPR:$rhs)), bb:$dst), (BLT GPR:$rhs, GPR:$lhs, brtarget:$dst)>;
+
+
+multiclass STORE<PatFrag op, string asm> {
+  def FI : InstS<(outs), (ins GPR:$ra, mem:$addr), !strconcat(asm, "\t$ra, $addr"), [(op GPR:$ra, AddrFI:$addr)], IIAlu>;
+  def R : InstS<(outs), (ins GPR:$ra, GPR:$rb), !strconcat(asm, "\t$ra, 0($rb)"), [(op GPR:$ra, GPR:$rb)], IIAlu>;
+}
+
+defm STOREW:STORE<store,"sw">;
+defm STOREH:STORE<truncstorei16,"sh">;
+defm STOREB:STORE<truncstorei8,"sb">;
+
+multiclass LOAD<PatFrag op, string asm> {
+  def FI : InstI<(outs GPR:$ra), (ins mem:$addr), !strconcat(asm, "\t$ra, $addr"), [(set GPR:$ra, (op AddrFI:$addr))], IIAlu>;
+  def R : InstI<(outs GPR:$ra), (ins GPR:$rb), !strconcat(asm, "\t$ra, 0($rb)"), [(set GPR:$ra, (op GPR:$rb))], IIAlu>;
+}
+
+defm LOADW:LOAD<load,"lw">;
+defm LOADH:LOAD<extloadi16,"lh">;
+defm LOADSH:LOAD<sextloadi16,"lh">;
+defm LOADB:LOAD<extloadi8,"lb">;
+defm LOADSB:LOAD<sextloadi8,"lb">;

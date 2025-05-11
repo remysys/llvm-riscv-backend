@@ -10,7 +10,5 @@ ASM=$FNAME.s
 
 $BIN/clang $SRC -c -emit-llvm -O0 -o $BC
 $BIN/llvm-dis $BC
-cat $LL
-$BIN/llc $BC -march=rriscv --debug
-cat $ASM
-
+# cat $LL
+$BIN/llc $LL -march=rriscv -view-dag-combine1-dags -view-dag-combine2-dags

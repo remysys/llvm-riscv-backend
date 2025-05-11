@@ -15,7 +15,7 @@ void RRISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
                                           const TargetRegisterInfo *TRI) const {
   DebugLoc DL;
 
-  BuildMI(MBB, MBBI, DL, get(RRISCV::STOREFI))
+  BuildMI(MBB, MBBI, DL, get(RRISCV::STOREWFI))
       .addReg(SrcReg, getKillRegState(IsKill))
       .addFrameIndex(FrameIndex)
       .addImm(0);
@@ -26,7 +26,7 @@ void RRISCVInstrInfo::loadRegFromStackSlot(
     int FrameIndex, const TargetRegisterClass *RC,
     const TargetRegisterInfo *TRI) const {
   DebugLoc DL;
-  BuildMI(MBB, MBBI, DL, get(RRISCV::LOADFI), DestReg)
+  BuildMI(MBB, MBBI, DL, get(RRISCV::LOADWFI), DestReg)
       .addFrameIndex(FrameIndex)
       .addImm(0);
 }
