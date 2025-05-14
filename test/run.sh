@@ -1,16 +1,15 @@
 #!/bin/bash
 
 BIN="../llvm-project/build/bin"
-FNAME="test17"
+FNAME="test18"
 
 SRC=$FNAME.cpp
-BC=$FNAME.bc
 LL=$FNAME.ll
 ASM=$FNAME.s
 
-$BIN/clang $SRC -c -emit-llvm -O0 -o $BC
-$BIN/llvm-dis $BC
+$BIN/clang $SRC -S -emit-llvm -O0 -o $LL
 cat $LL
-$BIN/llc $BC -march=rriscv --debug
+# $BIN/llc $BC -march=rriscv --debug 
+$BIN/llc -O1 -march=rriscv -debug-only=isel  -fast-isel=false $LL
 cat $ASM
 

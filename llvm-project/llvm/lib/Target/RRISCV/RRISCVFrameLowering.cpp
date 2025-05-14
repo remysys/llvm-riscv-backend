@@ -20,7 +20,7 @@ void RRISCVFrameLowering::emitPrologue(MachineFunction &MF,
       *static_cast<const RRISCVInstrInfo *>(STI.getInstrInfo());
 
   DebugLoc DL = MBBI != MBB.end() ? MBBI->getDebugLoc() : DebugLoc();
-  uint64_t StackSize = MFI.getStackSize();
+  uint64_t StackSize = MFI.getStackSize() + MFI.getOffsetAdjustment();
 
   if (StackSize == 0 && !MFI.adjustsStack())
     return;
@@ -36,7 +36,7 @@ void RRISCVFrameLowering::emitEpilogue(MachineFunction &MF,
   const RRISCVInstrInfo &TII =
       *static_cast<const RRISCVInstrInfo *>(STI.getInstrInfo());
   DebugLoc DL = MBBI != MBB.end() ? MBBI->getDebugLoc() : DebugLoc();
-  uint64_t StackSize = MFI.getStackSize();
+  uint64_t StackSize = MFI.getStackSize() + MFI.getOffsetAdjustment();
 
   if (StackSize == 0 && !MFI.adjustsStack())
     return;

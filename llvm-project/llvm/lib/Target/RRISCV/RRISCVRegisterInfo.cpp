@@ -28,7 +28,7 @@ void RRISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   MachineFunction &MF = *MI.getParent()->getParent();
   MachineFrameInfo &MFI = MF.getFrameInfo();
   int64_t offset = MFI.getObjectOffset(FI);
-  uint64_t stack_size = MFI.getStackSize();
+  uint64_t stack_size = MFI.getStackSize() + MFI.getOffsetAdjustment();
   offset += (int64_t)stack_size;
 
   offset += MI.getOperand(i + 1).getImm();

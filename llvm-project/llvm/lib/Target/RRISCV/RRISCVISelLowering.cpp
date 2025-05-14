@@ -3,7 +3,9 @@
 #include "TargetDesc/RRISCVBaseInfo.h"
 #include "TargetDesc/RRISCVTargetDesc.h"
 #include "llvm/CodeGen/CallingConvLower.h"
+#include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/CodeGen/TargetCallingConv.h"
 
 using namespace llvm;
 
@@ -40,6 +42,17 @@ void analyzeCallOperands(const SmallVectorImpl<ISD::OutputArg> &Args,
   }
 }
 
+void analyzeCallResult(const SmallVectorImpl<ISD::InputArg> &Args,
+                       CCState &CCInfo) {
+  unsigned NumArgs = Args.size();
+
+  for (unsigned I = 0; I != NumArgs; ++I) {
+    MVT ArgVT = Args[I].VT;
+    ISD::ArgFlagsTy ArgFlags = Args[I].Flags;
+    RRISCVCC(I, ArgVT, ArgVT, CCValAssign::Full, ArgFlags, CCInfo);
+  }
+}
+
 void analyzeReturn(const SmallVectorImpl<ISD::OutputArg> &Args,
                    CCState &CCInfo) {
   unsigned NumArgs = Args.size();
@@ -57,22 +70,38 @@ SDValue RRISCVTargetLowering::LowerFormalArguments(
     SelectionDAG &DAG, SmallVectorImpl<SDValue> &InVals) const {
   MachineFunction &MF = DAG.getMachineFunction();
 
+  MachineFrameInfo &MFI = MF.getFrameInfo();
+
   SmallVector<CCValAssign, 16> ArgLocs;
   CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(), ArgLocs,
                  *DAG.getContext());
 
   analyzeFormalArguments(Ins, CCInfo);
+
   for (unsigned i = 0, e = ArgLocs.size(); i != e; ++i) {
     CCValAssign &VA = ArgLocs[i];
-    assert(VA.isRegLoc());
     MVT RegVT = VA.getLocVT();
-    unsigned ArgReg = VA.getLocReg();
-    const TargetRegisterClass *RC = getRegClassFor(RegVT);
+    EVT ValVT = VA.getValVT();
+    if (VA.isRegLoc()) {
+      MVT RegVT = VA.getLocVT();
+      unsigned ArgReg = VA.getLocReg();
+      const TargetRegisterClass *RC = getRegClassFor(RegVT);
 
-    unsigned VReg = MF.getRegInfo().createVirtualRegister(RC);
-    MF.getRegInfo().addLiveIn(ArgReg, VReg);
-    SDValue ArgValue = DAG.getCopyFromReg(Chain, DL, VReg, RegVT);
-    InVals.push_back(ArgValue);
+      unsigned VReg = MF.getRegInfo().createVirtualRegister(RC);
+      MF.getRegInfo().addLiveIn(ArgReg, VReg);
+      SDValue ArgValue = DAG.getCopyFromReg(Chain, DL, VReg, RegVT);
+      InVals.push_back(ArgValue);
+    } else {
+      MVT LocVT = VA.getLocVT();
+      int FI = MFI.CreateFixedObject(ValVT.getSizeInBits() / 8,
+                                     VA.getLocMemOffset(), true);
+
+      SDValue FIN = DAG.getFrameIndex(FI, getPointerTy(DAG.getDataLayout()));
+      SDValue Load = DAG.getLoad(
+          LocVT, DL, Chain, FIN,
+          MachinePointerInfo::getFixedStack(DAG.getMachineFunction(), FI));
+      InVals.push_back(Load);
+    }
   }
   return Chain;
 }
@@ -153,7 +182,11 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   CallingConv::ID CallConv = CLI.CallConv;
   bool IsVarArg = CLI.IsVarArg;
 
+  MachineFunction &MF = DAG.getMachineFunction();
+  MachineFrameInfo &MFI = MF.getFrameInfo();
+
   SmallVectorImpl<ISD::OutputArg> &Outs = CLI.Outs;
+  SmallVectorImpl<ISD::InputArg> &Ins = CLI.Ins;
   SmallVectorImpl<SDValue> &OutVals = CLI.OutVals;
 
   SmallVector<CCValAssign, 2> ArgLocs;
@@ -162,9 +195,20 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   analyzeCallOperands(Outs, CCInfo);
   for (unsigned i = 0, e = ArgLocs.size(); i != e; ++i) {
     CCValAssign &VA = ArgLocs[i];
-    assert(VA.isRegLoc());
-    unsigned ArgReg = VA.getLocReg();
-    Chain = DAG.getCopyToReg(Chain, DL, ArgReg, OutVals[i]);
+    if (VA.isRegLoc()) {
+      unsigned ArgReg = VA.getLocReg();
+      Chain = DAG.getCopyToReg(Chain, DL, ArgReg, OutVals[i]);
+    } else if (VA.isMemLoc()) {
+      SDValue StackPtr = DAG.getCopyFromReg(Chain, DL, RRISCV::SP,
+                                            getPointerTy(DAG.getDataLayout()));
+
+      SDValue PtrOff =
+          DAG.getNode(ISD::ADD, DL, getPointerTy(DAG.getDataLayout()), StackPtr,
+                      DAG.getIntPtrConstant(VA.getLocMemOffset(), DL));
+      Chain = DAG.getStore(Chain, DL, OutVals[i], PtrOff, MachinePointerInfo());
+
+      MFI.setOffsetAdjustment(VA.getLocMemOffset() + 4);
+    }
   }
 
   GlobalAddressSDNode *N = dyn_cast<GlobalAddressSDNode>(Callee);
@@ -187,8 +231,8 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
     SmallVector<CCValAssign, 2> RVLocs;
     CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(), RVLocs,
                    *DAG.getContext());
+    analyzeCallResult(Ins, CCInfo);
 
-    analyzeReturn(Outs, CCInfo);
     for (unsigned i = 0, e = RVLocs.size(); i != e; ++i) {
       CCValAssign &VA = RVLocs[i];
       assert(VA.isRegLoc());
