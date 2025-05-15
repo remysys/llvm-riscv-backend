@@ -166,6 +166,8 @@ const char *RRISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {
     return "RRISCVISD::Lo";
   case RRISCVISD::Ret:
     return "RRISCVISD::Ret";
+    case RRISCVISD::Call:
+    return "RRISCVISD::Call";
   default:
     return NULL;
   }

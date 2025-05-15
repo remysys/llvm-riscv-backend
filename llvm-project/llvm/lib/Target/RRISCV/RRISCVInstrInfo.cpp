@@ -30,3 +30,15 @@ void RRISCVInstrInfo::loadRegFromStackSlot(
       .addFrameIndex(FrameIndex)
       .addImm(0);
 }
+
+void RRISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
+                                  MachineBasicBlock::iterator I,
+                                  const DebugLoc &DL, MCRegister DestReg,
+                                  MCRegister SrcReg, bool KillSrc) const {
+
+  MachineInstrBuilder MIB = BuildMI(MBB, I, DL, get(RRISCV::ADD));
+
+  MIB.addReg(DestReg, RegState::Define);
+  MIB.addReg(RRISCV::ZERO);
+  MIB.addReg(SrcReg, getKillRegState(KillSrc));
+}
