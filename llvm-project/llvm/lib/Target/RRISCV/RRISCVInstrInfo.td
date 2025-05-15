@@ -89,7 +89,7 @@ def RET : Pseudo<(outs), (ins), [(RRISCVRET)]>, PseudoInstExpansion<(JALR ZERO, 
 def SDT_Call : SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
 
 def RRISCVCall : SDNode<"RRISCVISD::Call", SDT_Call,
-                             [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
+                             [SDNPHasChain, SDNPOutGlue, SDNPOptInGlue, SDNPVariadic]>;
 
 
 // def CALL : InstI<(outs),(ins GPR:$rs1), "jalr ra, 0($rs1)", [(RRISCVCall GPR:$rs1)], IIAlu>;
