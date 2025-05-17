@@ -13,6 +13,12 @@ let Namespace = "RRISCV" in {
   def S1 :   RRISCVReg<"s1">,    DwarfRegNum<[9]>;
   def A0 :   RRISCVReg<"a0">,    DwarfRegNum<[10]>;
   def A1 :   RRISCVReg<"a1">,    DwarfRegNum<[11]>;
+  def A2 :   RRISCVReg<"a2">,    DwarfRegNum<[12]>;
+  def A3 :   RRISCVReg<"a3">,    DwarfRegNum<[13]>;
+  def A4 :   RRISCVReg<"a4">,    DwarfRegNum<[14]>;
+  def A5 :   RRISCVReg<"a5">,    DwarfRegNum<[15]>;
+  def A6 :   RRISCVReg<"a6">,    DwarfRegNum<[16]>;
+  def A7 :   RRISCVReg<"a7">,    DwarfRegNum<[17]>;
 }
 
 def GPR:RegisterClass<"RRISCV", [i32], 32, (add
