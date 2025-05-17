@@ -18,6 +18,7 @@ class RRISCVSubtarget;
 class RRISCVTargetLowering : public TargetLowering {
 private:
   SDValue lowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const;
+  const RRISCVSubtarget &Subtarget;
 
 public:
   RRISCVTargetLowering(const TargetMachine &TM, const RRISCVSubtarget &STI);

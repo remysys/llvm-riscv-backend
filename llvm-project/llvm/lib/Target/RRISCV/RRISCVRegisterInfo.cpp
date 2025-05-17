@@ -55,3 +55,8 @@ BitVector RRISCVRegisterInfo::getReservedRegs(MachineFunction const &MF) const {
 Register RRISCVRegisterInfo::getFrameRegister(MachineFunction const &MF) const {
   return RRISCV::SP;
 }
+
+const uint32_t *RRISCVRegisterInfo::getCallPreservedMask(const MachineFunction &MF,
+                                                      CallingConv::ID) const {
+  return CSR_RegMask;
+}

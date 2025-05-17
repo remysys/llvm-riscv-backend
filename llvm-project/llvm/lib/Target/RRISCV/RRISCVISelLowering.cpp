@@ -12,7 +12,7 @@ using namespace llvm;
 
 RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
                                            const RRISCVSubtarget &STI)
-    : TargetLowering(TM) {
+    : TargetLowering(TM), Subtarget(STI) {
   addRegisterClass(MVT::i32, &RRISCV::GPRRegClass);
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
   // expand br_cc to setcc and brcond instructions
@@ -154,10 +154,8 @@ SDValue RRISCVTargetLowering::lowerGlobalAddress(SDValue Op,
       DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, RRISCVII::MO_HI);
   SDValue Lo =
       DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, RRISCVII::MO_LO);
-  // return DAG.getNode(ISD::ADD, DL, Ty, DAG.getNode(RRISCVISD::Hi, DL, Ty,
-  // Hi), DAG.getNode(RRISCVISD::Lo, DL, Ty, Lo));
+
   SDValue MNHi = SDValue(DAG.getMachineNode(RRISCV::LUI, DL, Ty, Hi), 0);
-  // return SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
 
   SDValue Addr = SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
   if (Offset != 0) {
@@ -208,8 +206,6 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   for (unsigned i = 0, e = ArgLocs.size(); i != e; ++i) {
     CCValAssign &VA = ArgLocs[i];
     if (VA.isRegLoc()) {
-      // unsigned ArgReg = VA.getLocReg();
-      // Chain = DAG.getCopyToReg(Chain, DL, ArgReg, OutVals[i]);
       RegsToPass.push_back(std::make_pair(VA.getLocReg(), OutVals[i]));
     } else if (VA.isMemLoc()) {
       SDValue StackPtr = DAG.getCopyFromReg(Chain, DL, RRISCV::SP,
@@ -245,6 +241,11 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
     Ops.push_back(DAG.getRegister(RegsToPass[i].first,
                                   RegsToPass[i].second.getValueType()));
   }
+
+  const TargetRegisterInfo *TRI = Subtarget.getRegisterInfo();
+  const uint32_t *Mask =
+      TRI->getCallPreservedMask(DAG.getMachineFunction(), CallConv);
+  Ops.push_back(DAG.getRegisterMask(Mask));
 
   if (Glue.getNode()) {
     Ops.push_back(Glue);
