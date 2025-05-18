@@ -25,4 +25,4 @@ def GPR:RegisterClass<"RRISCV", [i32], 32, (add
   ZERO, RA, SP,
   T0, T1, T2,
   S0, S1,
-  A0, A1)>;
+  A0, A1, A2, A3, A4, A5, A6, A7)>;
