@@ -223,7 +223,13 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   GlobalAddressSDNode *N = dyn_cast<GlobalAddressSDNode>(Callee);
 
   EVT Ty = getPointerTy(DAG.getDataLayout());
-  Callee = DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0);
+
+  if (GlobalAddressSDNode *N = dyn_cast<GlobalAddressSDNode>(Callee)) {
+    Callee = DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0);
+  } else if (ExternalSymbolSDNode *S = dyn_cast<ExternalSymbolSDNode>(Callee)) {
+    const char *Sym = S->getSymbol();
+    Callee = DAG.getTargetExternalSymbol(Sym, Ty);
+  }
 
   SmallVector<SDValue, 8> Ops(1, Chain);
   Ops.push_back(Callee);
