@@ -91,11 +91,19 @@ def SDT_Call : SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
 def RRISCVCall : SDNode<"RRISCVISD::Call", SDT_Call,
                              [SDNPHasChain, SDNPOutGlue, SDNPOptInGlue, SDNPVariadic]>;
 
-
-// def CALL : InstI<(outs),(ins GPR:$rs1), "jalr ra, 0($rs1)", [(RRISCVCall GPR:$rs1)], IIAlu>;
+/*
+def CALL : InstI<(outs),(ins GPR:$rs1), "jalr ra, 0($rs1)", [(RRISCVCall GPR:$rs1)], IIAlu>;
 def CALL : Pseudo<(outs), (ins GPR:$rs1), [(RRISCVCall GPR:$rs1)]>, PseudoInstExpansion<(JALR RA, GPR:$rs1, 0)> {
   let isCall = 1;
 }
+*/
+
+def calltarget  : Operand<iPTR>;
+def CALL : InstI<(outs),(ins calltarget:$rs1), "call\t$rs1", [], IIAlu> {
+  let isCall = 1;
+}
+def : Pat<(RRISCVCall tglobaladdr:$rs1), (CALL calltarget:$rs1)>;
+def : Pat<(RRISCVCall texternalsym:$rs1), (CALL calltarget:$rs1)>;
 
 // for br
 
