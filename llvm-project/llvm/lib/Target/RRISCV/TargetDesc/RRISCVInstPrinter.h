@@ -17,7 +17,7 @@ public:
   void printRegName(raw_ostream &O, unsigned RegNo) const override;
 
   void printMemOperand(const MCInst *MI, int opNum, raw_ostream &O);
-
+  void printMemStackOperand(const MCInst *MI, int opNum, raw_ostream &O);
   void printOperand(const MCInst *MI, unsigned OpNo, raw_ostream &O);
   void printOperand(const MCInst *MI, uint64_t _Address, unsigned OpNum,
                     raw_ostream &O);

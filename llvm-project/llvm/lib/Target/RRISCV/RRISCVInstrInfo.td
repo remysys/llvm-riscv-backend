@@ -8,6 +8,11 @@ def mem : Operand<iPTR> {
   let PrintMethod = "printMemOperand";  
 }
 
+def mem_stack : Operand<iPTR> {
+  let MIOperandInfo = (ops GPR, imm12);
+  let PrintMethod = "printMemStackOperand";
+}
+
 class ArithLogicI <string inst, SDNode node>:
       InstI<(outs GPR:$rd), (ins GPR:$rs1, imm12:$imm),
       !strconcat(inst, "\t$rd, $rs1, $imm"),
@@ -148,3 +153,4 @@ defm LOADH:LOAD<extloadi16,"lh">;
 defm LOADSH:LOAD<sextloadi16,"lh">;
 defm LOADB:LOAD<extloadi8,"lb">;
 defm LOADSB:LOAD<sextloadi8,"lb">;
+def LEA_STACK : InstI<(outs GPR:$rd),(ins mem_stack:$mem), "addi \t$rd, $mem", [(set GPR:$rd, AddrFI:$mem)], IIAlu>;

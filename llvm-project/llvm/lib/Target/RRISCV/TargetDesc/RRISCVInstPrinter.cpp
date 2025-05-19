@@ -1,6 +1,6 @@
 #include "RRISCVInstPrinter.h"
-#include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCExpr.h"
+#include "llvm/MC/MCInst.h"
 
 #define DEBUG_TYPE "rriscv instr printer"
 #include <llvm/Support/Debug.h>
@@ -51,4 +51,11 @@ void RRISCVInstPrinter::printMemOperand(const MCInst *MI, int opNum,
   O << "(";
   printOperand(MI, opNum, O);
   O << ")";
+}
+
+void RRISCVInstPrinter::printMemStackOperand(const MCInst *MI, int opNum,
+                                             raw_ostream &O) {
+  printOperand(MI, opNum, O);
+  O << ",";
+  printOperand(MI, opNum + 1, O);
 }
