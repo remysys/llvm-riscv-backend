@@ -2,6 +2,7 @@ include "RRISCVInstrFormats.td"
 
 def imm12 : Operand<i32>, ImmLeaf<i32, [{return isInt<12>(Imm);}]>;
 def imm20 : Operand<i32>, ImmLeaf<i32, [{return isInt<20>(Imm);}]>;
+def imm32 : Operand<i32>, ImmLeaf<i32, [{return isInt<32>(Imm);}]>;
 
 def mem : Operand<iPTR> {
   let MIOperandInfo = (ops GPR, imm12);
@@ -154,3 +155,7 @@ defm LOADSH:LOAD<sextloadi16,"lh">;
 defm LOADB:LOAD<extloadi8,"lb">;
 defm LOADSB:LOAD<sextloadi8,"lb">;
 def LEA_STACK : InstI<(outs GPR:$rd),(ins mem_stack:$mem), "addi \t$rd, $mem", [(set GPR:$rd, AddrFI:$mem)], IIAlu>;
+
+
+def LI : InstI<(outs GPR:$rd),(ins imm32:$rs1), "li\t$rd, $rs1", [], IIAlu>;
+def : Pat<(i32 imm32:$in), (LI imm32:$in)>;
