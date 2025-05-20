@@ -50,6 +50,9 @@ RRISCVMCInstLower::LowerSymbolOperand(const MachineOperand &MO) const {
   case MachineOperand::MO_ExternalSymbol:
     Symbol = AsmPrinter.GetExternalSymbolSymbol(MO.getSymbolName());
     break;
+  case llvm::MachineOperand::MO_ConstantPoolIndex:
+    Symbol = AsmPrinter.GetCPISymbol(MO.getIndex());
+    break;
   default:
     llvm_unreachable("<unknown operand type>");
   }
@@ -70,6 +73,7 @@ MCOperand RRISCVMCInstLower::LowerOperand(const MachineOperand &MO) const {
   case MachineOperand::MO_GlobalAddress:
   case MachineOperand::MO_MachineBasicBlock:
   case MachineOperand::MO_ExternalSymbol:
+  case MachineOperand::MO_ConstantPoolIndex:
     return LowerSymbolOperand(MO);
   }
 

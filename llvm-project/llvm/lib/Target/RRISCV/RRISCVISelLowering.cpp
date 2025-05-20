@@ -5,6 +5,7 @@
 #include "llvm/CodeGen/CallingConvLower.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/CodeGen/SelectionDAGNodes.h"
 #include "llvm/CodeGen/TargetCallingConv.h"
 #include <deque>
 
@@ -14,7 +15,9 @@ RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
                                            const RRISCVSubtarget &STI)
     : TargetLowering(TM), Subtarget(STI) {
   addRegisterClass(MVT::i32, &RRISCV::GPRRegClass);
+  addRegisterClass(MVT::f32, &RRISCV::FPRRegClass);
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
+  setOperationAction(ISD::ConstantPool, MVT::i32, Custom);
   // expand br_cc to setcc and brcond instructions
   setOperationAction(ISD::BR_CC, MVT::i32, Expand);
   computeRegisterProperties(STI.getRegisterInfo());
@@ -140,6 +143,8 @@ SDValue RRISCVTargetLowering::LowerOperation(SDValue Op,
   switch (Op.getOpcode()) {
   case ISD::GlobalAddress:
     return lowerGlobalAddress(Op, DAG);
+  case ISD::ConstantPool:
+    return lowerConstantPool(Op, DAG);
   }
   return SDValue();
 }
@@ -274,4 +279,16 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   }
 
   return Chain;
+}
+
+SDValue RRISCVTargetLowering::lowerConstantPool(SDValue Op,
+                        SelectionDAG &DAG) const {
+  EVT Ty = Op.getValueType();
+  ConstantPoolSDNode *N = cast<ConstantPoolSDNode>(Op);
+  SDLoc DL(N);
+  SDValue CPAddr = DAG.getTargetConstantPool(N->getConstVal(), Ty, N->getAlign(),
+                       N->getOffset(), 0);
+  SDValue Addr = SDValue(DAG.getMachineNode(RRISCV::LEA, DL, Ty, CPAddr), 0);
+
+  return Addr;
 }
