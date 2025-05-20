@@ -20,6 +20,7 @@ RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
   setOperationAction(ISD::ConstantPool, MVT::i32, Custom);
   // expand br_cc to setcc and brcond instructions
   setOperationAction(ISD::BR_CC, MVT::i32, Expand);
+  setOperationAction(ISD::BR_CC, MVT::f32, Expand);
   computeRegisterProperties(STI.getRegisterInfo());
 }
 
@@ -282,12 +283,12 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
 }
 
 SDValue RRISCVTargetLowering::lowerConstantPool(SDValue Op,
-                        SelectionDAG &DAG) const {
+                                                SelectionDAG &DAG) const {
   EVT Ty = Op.getValueType();
   ConstantPoolSDNode *N = cast<ConstantPoolSDNode>(Op);
   SDLoc DL(N);
-  SDValue CPAddr = DAG.getTargetConstantPool(N->getConstVal(), Ty, N->getAlign(),
-                       N->getOffset(), 0);
+  SDValue CPAddr = DAG.getTargetConstantPool(N->getConstVal(), Ty,
+                                             N->getAlign(), N->getOffset(), 0);
   SDValue Addr = SDValue(DAG.getMachineNode(RRISCV::LEA, DL, Ty, CPAddr), 0);
 
   return Addr;

@@ -173,3 +173,21 @@ class ArithLogicF <string inst, SDNode node>:
       IIAlu>;
 
 def FADDS : ArithLogicF<"fadd.s", fadd>;
+
+class FSETCC <string asm, PatFrag node>:
+    InstR<(outs GPR:$rd),(ins FPR:$rs1, FPR:$rs2),
+    !strconcat(asm, "\t$rd, $rs1, $rs2"),
+    [(set GPR:$rd, (node FPR:$rs1, FPR:$rs2))], IIAlu>;
+
+def FEQS:FSETCC<"feq.s", seteq>;
+def FLTS:FSETCC<"flt.s", setlt>;
+def FLES:FSETCC<"fle.s", setle>;
+
+def : Pat<(setune FPR:$lhs, FPR:$rhs), (XORI (FEQS FPR:$lhs, FPR:$rhs), 1)>;
+def : Pat<(setuge FPR:$lhs, FPR:$rhs), (XORI (FLTS FPR:$lhs, FPR:$rhs), 1)>;
+def : Pat<(setugt FPR:$lhs, FPR:$rhs), (FLTS FPR:$rhs, FPR:$lhs)>;
+def : Pat<(setule FPR:$lhs, FPR:$rhs), (FLES FPR:$lhs, FPR:$rhs)>;
+def : Pat<(setult FPR:$lhs, FPR:$rhs), (FLTS FPR:$lhs, FPR:$rhs)>;
+def : Pat<(setoeq FPR:$lhs, FPR:$rhs), (FEQS FPR:$lhs, FPR:$rhs)>;
+
+def : Pat<(brcond GPR:$cond, bb:$dst), (BEQ GPR:$cond, (LI 1), brtarget:$dst)>;
