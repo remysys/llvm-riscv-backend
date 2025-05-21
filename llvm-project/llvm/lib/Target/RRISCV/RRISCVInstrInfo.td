@@ -175,6 +175,9 @@ class ArithLogicF <string inst, SDNode node>:
       IIAlu>;
 
 def FADDS : ArithLogicF<"fadd.s", fadd>;
+def FSUBS : ArithLogicF<"fsub.s", fsub>;
+def FMULS : ArithLogicF<"fmul.s", fmul>;
+def FDIVS : ArithLogicF<"fdiv.s", fdiv>;
 
 class FSETCC <string asm, PatFrag node>:
     InstR<(outs GPR:$rd),(ins FPR:$rs1, FPR:$rs2),
@@ -212,3 +215,6 @@ class ArithLogicF64 <string inst, SDNode node>:
     IIAlu>;
 
 def FADDD : ArithLogicF64<"fadd.d", fadd>;
+def FSUBD : ArithLogicF64<"fsub.d", fsub>;
+def FMULD : ArithLogicF64<"fmul.d", fmul>;
+def FDIVD : ArithLogicF64<"fdiv.d", fdiv>;
