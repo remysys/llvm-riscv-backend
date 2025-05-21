@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BIN="../llvm-project/build/bin"
-FNAME="test33"
+FNAME="test34"
 
 SRC=$FNAME.cpp
 BC=$FNAME.bc

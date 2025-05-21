@@ -27,6 +27,9 @@ RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
 
   setTruncStoreAction(MVT::f64, MVT::f32, Expand);
   setLoadExtAction(ISD::EXTLOAD, MVT::f64, MVT::f32, Expand);
+
+  setOperationAction(ISD::FMAXNUM, MVT::f32, Legal);
+  setOperationAction(ISD::FMINNUM, MVT::f32, Legal);
 }
 
 #include "RRISCVGenCallingConv.inc"

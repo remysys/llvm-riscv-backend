@@ -252,3 +252,10 @@ class UnaryF <string inst, SDNode node>:
 
 def FABSS : UnaryF<"fabs.s", fabs>;
 
+def FMAXS : InstR<(outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2),
+    "fmax.s\t$rd, $rs1, $rs2",
+    [(set FPR:$rd, (fmaxnum FPR:$rs1, FPR:$rs2))], IIAlu>;
+
+def FMINS : InstR<(outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2),
+    "fmin.s\t$rd, $rs1, $rs2",
+    [(set FPR:$rd, (fminnum FPR:$rs1, FPR:$rs2))], IIAlu>;
