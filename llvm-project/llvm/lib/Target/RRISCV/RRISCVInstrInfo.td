@@ -193,6 +193,13 @@ def : Pat<(setuge FPR:$lhs, FPR:$rhs), (XORI (FLTS FPR:$lhs, FPR:$rhs), 1)>;
 def : Pat<(setugt FPR:$lhs, FPR:$rhs), (FLTS FPR:$rhs, FPR:$lhs)>;
 def : Pat<(setule FPR:$lhs, FPR:$rhs), (FLES FPR:$lhs, FPR:$rhs)>;
 def : Pat<(setult FPR:$lhs, FPR:$rhs), (FLTS FPR:$lhs, FPR:$rhs)>;
+def : Pat<(setueq FPR:$lhs, FPR:$rhs), (FEQS FPR:$lhs, FPR:$rhs)>;
+
+def : Pat<(setone FPR:$lhs, FPR:$rhs), (XORI (FEQS FPR:$lhs, FPR:$rhs), 1)>;
+def : Pat<(setoge FPR:$lhs, FPR:$rhs), (XORI (FLTS FPR:$lhs, FPR:$rhs), 1)>;
+def : Pat<(setogt FPR:$lhs, FPR:$rhs), (FLTS FPR:$rhs, FPR:$lhs)>;
+def : Pat<(setole FPR:$lhs, FPR:$rhs), (FLES FPR:$lhs, FPR:$rhs)>;
+def : Pat<(setolt FPR:$lhs, FPR:$rhs), (FLTS FPR:$lhs, FPR:$rhs)>;
 def : Pat<(setoeq FPR:$lhs, FPR:$rhs), (FEQS FPR:$lhs, FPR:$rhs)>;
 
 def : Pat<(brcond GPR:$cond, bb:$dst), (BEQ GPR:$cond, (LI 1), brtarget:$dst)>;
@@ -235,3 +242,13 @@ def : Pat<(setugt FPR64:$lhs, FPR64:$rhs), (FLTD FPR64:$rhs, FPR64:$lhs)>;
 def : Pat<(setule FPR64:$lhs, FPR64:$rhs), (FLED FPR64:$lhs, FPR64:$rhs)>;
 def : Pat<(setult FPR64:$lhs, FPR64:$rhs), (FLTD FPR64:$lhs, FPR64:$rhs)>;
 def : Pat<(setoeq FPR64:$lhs, FPR64:$rhs), (FEQD FPR64:$lhs, FPR64:$rhs)>;
+
+
+class UnaryF <string inst, SDNode node>:
+    InstR<(outs FPR:$rd), (ins FPR:$rs1),
+    !strconcat(inst, "\t$rd, $rs1"),
+    [(set FPR:$rd, (node FPR:$rs1))],
+    IIAlu>;
+
+def FABSS : UnaryF<"fabs.s", fabs>;
+
