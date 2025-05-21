@@ -218,3 +218,20 @@ def FADDD : ArithLogicF64<"fadd.d", fadd>;
 def FSUBD : ArithLogicF64<"fsub.d", fsub>;
 def FMULD : ArithLogicF64<"fmul.d", fmul>;
 def FDIVD : ArithLogicF64<"fdiv.d", fdiv>;
+
+
+class DSETCC <string asm, PatFrag node>:
+    InstR<(outs GPR:$rd),(ins FPR64:$rs1, FPR64:$rs2),
+    !strconcat(asm, "\t$rd, $rs1, $rs2"),
+    [(set GPR:$rd, (node FPR64:$rs1, FPR64:$rs2))], IIAlu>;
+
+def FEQD:DSETCC<"feq.d", seteq>;
+def FLTD:DSETCC<"flt.d", setlt>;
+def FLED:DSETCC<"fle.d", setle>;
+
+def : Pat<(setune FPR64:$lhs, FPR64:$rhs), (XORI (FEQD FPR64:$lhs, FPR64:$rhs), 1)>;
+def : Pat<(setuge FPR64:$lhs, FPR64:$rhs), (XORI (FLTD FPR64:$lhs, FPR64:$rhs), 1)>;
+def : Pat<(setugt FPR64:$lhs, FPR64:$rhs), (FLTD FPR64:$rhs, FPR64:$lhs)>;
+def : Pat<(setule FPR64:$lhs, FPR64:$rhs), (FLED FPR64:$lhs, FPR64:$rhs)>;
+def : Pat<(setult FPR64:$lhs, FPR64:$rhs), (FLTD FPR64:$lhs, FPR64:$rhs)>;
+def : Pat<(setoeq FPR64:$lhs, FPR64:$rhs), (FEQD FPR64:$lhs, FPR64:$rhs)>;

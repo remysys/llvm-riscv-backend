@@ -22,6 +22,7 @@ RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
   // expand br_cc to setcc and brcond instructions
   setOperationAction(ISD::BR_CC, MVT::i32, Expand);
   setOperationAction(ISD::BR_CC, MVT::f32, Expand);
+  setOperationAction(ISD::BR_CC, MVT::f64, Expand);
   computeRegisterProperties(STI.getRegisterInfo());
 
   setTruncStoreAction(MVT::f64, MVT::f32, Expand);
