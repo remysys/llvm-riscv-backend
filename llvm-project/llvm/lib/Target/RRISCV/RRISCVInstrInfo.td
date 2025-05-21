@@ -143,6 +143,7 @@ defm STOREW:STORE<store, "sw", GPR>;
 defm STOREH:STORE<truncstorei16, "sh", GPR>;
 defm STOREB:STORE<truncstorei8, "sb", GPR>;
 defm STOREF:STORE<store, "fsw", FPR>;
+defm STORED:STORE<store, "fsd", FPR64>;
 
 multiclass LOAD<PatFrag op, string asm, DAGOperand ty> {
   def FI : InstI<(outs ty:$ra), (ins mem:$addr), !strconcat(asm, "\t$ra, $addr"), [(set ty:$ra, (op AddrFI:$addr))], IIAlu>;
@@ -157,6 +158,7 @@ defm LOADB:LOAD<extloadi8, "lb", GPR>;
 defm LOADSB:LOAD<sextloadi8, "lb", GPR>;
 defm LOADZB:LOAD<zextloadi8, "lb", GPR>;
 defm LOADF:LOAD<load, "flw", FPR>;
+defm LOADFD:LOAD<load, "fld", FPR64>;
 
 def LEA : InstI<(outs GPR:$rd),(ins calltarget:$rs1), "la\t$rd, $rs1", [], IIAlu>;
 def LEA_STACK : InstI<(outs GPR:$rd),(ins mem_stack:$mem), "addi \t$rd, $mem", [(set GPR:$rd, AddrFI:$mem)], IIAlu>;
@@ -191,3 +193,22 @@ def : Pat<(setult FPR:$lhs, FPR:$rhs), (FLTS FPR:$lhs, FPR:$rhs)>;
 def : Pat<(setoeq FPR:$lhs, FPR:$rhs), (FEQS FPR:$lhs, FPR:$rhs)>;
 
 def : Pat<(brcond GPR:$cond, bb:$dst), (BEQ GPR:$cond, (LI 1), brtarget:$dst)>;
+
+
+def FCVTSD : InstR<(outs FPR:$rd), (ins FPR64:$rs1),
+    "fcvt.s.d\t$rd, $rs1",
+    [(set FPR:$rd, (fpround FPR64:$rs1))],
+    IIAlu>;
+
+def FCVTDS : InstR<(outs FPR64:$rd), (ins FPR:$rs1),
+    "fcvt.d.s\t$rd, $rs1",
+    [(set FPR64:$rd, (fpextend FPR:$rs1))],
+    IIAlu>;
+
+class ArithLogicF64 <string inst, SDNode node>:
+    InstR<(outs FPR64:$rd), (ins FPR64:$rs1, FPR64:$rs2),
+    !strconcat(inst, "\t$rd, $rs1, $rs2"),
+    [(set FPR64:$rd, (node FPR64:$rs1, FPR64:$rs2))],
+    IIAlu>;
+
+def FADDD : ArithLogicF64<"fadd.d", fadd>;

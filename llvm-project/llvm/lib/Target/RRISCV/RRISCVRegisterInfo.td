@@ -67,3 +67,10 @@ def FPR:RegisterClass<"RRISCV", [f32], 32, (add
   FA0, FA1, FA2, FA3, FA4, FA5, FA6, FA7,
   FS2, FS3, FS4, FS5, FS6, FS7, FS8, FS9, FS10, FS11,
   FT8, FT9, FT10, FT11)>;
+
+def FPR64:RegisterClass<"RRISCV", [f64], 64, (add
+  FT0, FT1, FT2, FT3, FT4, FT5, FT6, FT7,
+  FS0, FS1,
+  FA0, FA1, FA2, FA3, FA4, FA5, FA6, FA7,
+  FS2, FS3, FS4, FS5, FS6, FS7, FS8, FS9, FS10, FS11,
+  FT8, FT9, FT10, FT11)>;

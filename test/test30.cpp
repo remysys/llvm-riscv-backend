@@ -1,0 +1,1 @@
+float foo(float a, double b) { return a + b; }

@@ -16,12 +16,16 @@ RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
     : TargetLowering(TM), Subtarget(STI) {
   addRegisterClass(MVT::i32, &RRISCV::GPRRegClass);
   addRegisterClass(MVT::f32, &RRISCV::FPRRegClass);
+  addRegisterClass(MVT::f64, &RRISCV::FPR64RegClass);
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
   setOperationAction(ISD::ConstantPool, MVT::i32, Custom);
   // expand br_cc to setcc and brcond instructions
   setOperationAction(ISD::BR_CC, MVT::i32, Expand);
   setOperationAction(ISD::BR_CC, MVT::f32, Expand);
   computeRegisterProperties(STI.getRegisterInfo());
+
+  setTruncStoreAction(MVT::f64, MVT::f32, Expand);
+  setLoadExtAction(ISD::EXTLOAD, MVT::f64, MVT::f32, Expand);
 }
 
 #include "RRISCVGenCallingConv.inc"
