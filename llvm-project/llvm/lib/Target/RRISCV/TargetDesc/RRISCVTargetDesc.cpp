@@ -1,11 +1,13 @@
 #include "RRISCVTargetDesc.h"
+#include "RRISCVAsmBackend.h"
+#include "RRISCVInstPrinter.h"
+#include "RRISCVMCCodeEmitter.h"
+#include "llvm/ADT/None.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/TargetRegistry.h"
-#include "llvm/ADT/None.h"
-#include "RRISCVInstPrinter.h"
 
 #define GET_INSTRINFO_MC_DESC
 #define ENABLE_INSTR_PREDICATE_VERIFIER
@@ -22,14 +24,14 @@ using namespace llvm;
 extern Target TheRRISCVTarget;
 
 static MCAsmInfo *createRRISCVMCAsmInfo(MCRegisterInfo const &MRI,
-                                     Triple const &TT,
-                                     MCTargetOptions const &Options) {
+                                        Triple const &TT,
+                                        MCTargetOptions const &Options) {
   MCAsmInfo *x = new MCAsmInfo();
   return x;
 }
 
-static MCSubtargetInfo *createRRISCVMCSubtargetInfo(Triple const &TT,
-                                                 StringRef CPU, StringRef FS) {
+static MCSubtargetInfo *
+createRRISCVMCSubtargetInfo(Triple const &TT, StringRef CPU, StringRef FS) {
   return createRRISCVMCSubtargetInfoImpl(TT, CPU, CPU, FS);
 }
 
@@ -44,18 +46,35 @@ static MCRegisterInfo *createRRISCVMCRegisterInfo(Triple const &TT) {
 }
 
 static MCInstPrinter *createRRISCVInstPrinter(Triple const &T,
-                                           unsigned SyntaxVariant,
-                                           MCAsmInfo const &MAI,
-                                           MCInstrInfo const &MII,
-                                           MCRegisterInfo const &MRI) {
+                                              unsigned SyntaxVariant,
+                                              MCAsmInfo const &MAI,
+                                              MCInstrInfo const &MII,
+                                              MCRegisterInfo const &MRI) {
   return new RRISCVInstPrinter(MAI, MII, MRI);
 }
 
+static MCCodeEmitter *createRRISCVMCCodeEmitter(const MCInstrInfo &MCII,
+                                                MCContext &Ctx) {
+  return new RRISCVMCCodeEmitter(MCII, Ctx);
+}
+
+static MCAsmBackend *createRRISCVAsmBackend(const Target &T,
+                                            const MCSubtargetInfo &STI,
+                                            const MCRegisterInfo &MRI,
+                                            const MCTargetOptions &Options) {
+  return new RRISCVAsmBackend(T, STI.getTargetTriple());
+}
+
 extern "C" void LLVMInitializeRRISCVTargetMC() {
-  TargetRegistry::RegisterMCRegInfo(TheRRISCVTarget, createRRISCVMCRegisterInfo);
+  TargetRegistry::RegisterMCRegInfo(TheRRISCVTarget,
+                                    createRRISCVMCRegisterInfo);
   TargetRegistry::RegisterMCInstrInfo(TheRRISCVTarget, createRRISCVMCInstrInfo);
   TargetRegistry::RegisterMCSubtargetInfo(TheRRISCVTarget,
                                           createRRISCVMCSubtargetInfo);
   TargetRegistry::RegisterMCAsmInfo(TheRRISCVTarget, createRRISCVMCAsmInfo);
-  TargetRegistry::RegisterMCInstPrinter(TheRRISCVTarget, createRRISCVInstPrinter);
+  TargetRegistry::RegisterMCInstPrinter(TheRRISCVTarget,
+                                        createRRISCVInstPrinter);
+  TargetRegistry::RegisterMCCodeEmitter(TheRRISCVTarget,
+                                        createRRISCVMCCodeEmitter);
+  TargetRegistry::RegisterMCAsmBackend(TheRRISCVTarget, createRRISCVAsmBackend);
 }

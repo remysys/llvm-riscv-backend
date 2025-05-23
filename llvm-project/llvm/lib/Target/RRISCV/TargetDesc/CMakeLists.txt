@@ -2,4 +2,7 @@ add_llvm_library(LLVMRRISCVDesc
   RRISCVTargetDesc.cpp
   RRISCVInstPrinter.cpp
   RRISCVMCExpr.cpp
+  RRISCVMCCodeEmitter.cpp
+  RRISCVAsmBackend.cpp
+  RRISCVELFObjectWriter.cpp
 )
