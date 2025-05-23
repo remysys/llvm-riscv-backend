@@ -259,3 +259,8 @@ def FMAXS : InstR<(outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2),
 def FMINS : InstR<(outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2),
     "fmin.s\t$rd, $rs1, $rs2",
     [(set FPR:$rd, (fminnum FPR:$rs1, FPR:$rs2))], IIAlu>;
+
+def FMADDS : InstR<(outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2, FPR:$rs3),
+    "fmadd.s\t$rd, $rs1, $rs2, $rs3",
+    [(set FPR:$rd, (fadd (fmul FPR:$rs1,FPR:$rs2), FPR:$rs3))],
+    IIAlu>;
