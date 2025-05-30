@@ -25,6 +25,8 @@ def ANDI : ArithLogicI<0b0010011, 0b111, "andi", and>;
 def ORI : ArithLogicI<0b0010011, 0b110, "ori", or>;
 def XORI : ArithLogicI<0b0010011, 0b100, "xori", xor>;
 
+
+
 class ArithLogicR <bits<7> funct7, bits<3> funct3, string inst, SDNode node>:
       InstR<0b0110011, funct7, funct3, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
       !strconcat(inst, "\t$rd, $rs1, $rs2"),
@@ -39,6 +41,10 @@ def REM : ArithLogicR<0b0000001, 0b110, "rem", srem>;
 def AND : ArithLogicR<0b0000000, 0b111, "and", and>;
 def OR :  ArithLogicR<0b0000000, 0b110, "or", or>;
 def XOR : ArithLogicR<0b0000000, 0b100, "xor", xor>;
+
+def SLL : ArithLogicR<0b0000000, 0b001, "sll", shl>;
+def SRA : ArithLogicR<0b0100000, 0b101, "sra", sra>;
+def SRL : ArithLogicR<0b0000000, 0b101, "srl", srl>;
 
 def SLT : InstR<0b0110011, 0b0000000, 0b010, (outs GPR:$rd),(ins GPR:$rs1, GPR:$rs2),
             "slt\t$rd, $rs1, $rs2", [], IIAlu>;

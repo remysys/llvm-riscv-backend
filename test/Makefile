@@ -1,9 +1,14 @@
 BIN := ../llvm-project/build/bin
-FNAME := test36
+FNAME := test37
 SRC := $(FNAME).cpp
 LL := $(FNAME).ll
 ASM := $(FNAME).s
 OBJ := $(FNAME).o
+
+CLANG_FLAGS := -S -emit-llvm -O0
+LLC_FLAGS := -O0 -march=rriscv -fast-isel=false
+
+.PHONY: build asm dag obj clean
 
 .PHONY: build asm dag obj clean
 
@@ -14,20 +19,20 @@ build:
 	make -j $(nproc)
 
 asm:
-	$(BIN)/clang $(SRC) -S -emit-llvm -O0 -o $(LL)
+	$(BIN)/clang $(SRC) $(CLANG_FLAGS) -o $(LL)
 	cat $(LL)
-	$(BIN)/llc -O1 -march=rriscv -debug -fast-isel=false $(LL)
+	$(BIN)/llc $(LLC_FLAGS) -debug $(LL)
 	cat $(ASM)
 
 dag:
-	$(BIN)/clang $(SRC) -S -emit-llvm -O0 -o $(LL)
+	$(BIN)/clang $(SRC) $(CLANG_FLAGS) -o $(LL)
 	cat $(LL)
-	$(BIN)/llc -O1 -march=rriscv -fast-isel=false -view-dag-combine1-dags -view-dag-combine2-dags -view-sched-dags $(LL)
+	$(BIN)/llc $(LLC_FLAGS) -view-dag-combine1-dags -view-dag-combine2-dags -view-sched-dags $(LL)
 
 obj:
-	$(BIN)/clang $(SRC) -S -emit-llvm -O0 -o $(LL)
-	$(BIN)/llc -O1 -march=rriscv -filetype=obj $(LL) -o $(OBJ)
-	riscv64-unknown-linux-gnu-objdump -d $(OBJ) 
+	$(BIN)/clang $(SRC) $(CLANG_FLAGS) -o $(LL)
+	$(BIN)/llc $(LLC_FLAGS) -filetype=obj $(LL) -o $(OBJ)
+	riscv64-unknown-linux-gnu-objdump -d $(OBJ)
 
 clean:
 	rm -f *.s *.o *.ll *.bc
