@@ -42,6 +42,7 @@ static MCInstrInfo *createRRISCVMCInstrInfo() {
 
 static MCRegisterInfo *createRRISCVMCRegisterInfo(Triple const &TT) {
   MCRegisterInfo *x = new MCRegisterInfo();
+  InitRRISCVMCRegisterInfo(x, RRISCV::RA);
   return x;
 }
 

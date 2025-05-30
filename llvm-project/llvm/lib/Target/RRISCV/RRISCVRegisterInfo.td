@@ -1,59 +1,59 @@
-let Namespace = "RRISCV" in {
-  class RRISCVReg<string n> : Register<n>;
+
+class RRISCVReg<bits<5> Enc, string n> : Register<n> {
+  let HWEncoding{4-0} = Enc;
+  let Namespace = "RRISCV";
 }
 
-let Namespace = "RRISCV" in {
-  def ZERO : RRISCVReg<"zero">,  DwarfRegNum<[0]>;
-  def RA :   RRISCVReg<"ra">,    DwarfRegNum<[1]>;
-  def SP :   RRISCVReg<"sp">,    DwarfRegNum<[2]>;
-  def T0 :   RRISCVReg<"t0">,    DwarfRegNum<[5]>;
-  def T1 :   RRISCVReg<"t1">,    DwarfRegNum<[6]>;
-  def T2 :   RRISCVReg<"t2">,    DwarfRegNum<[7]>;
-  def S0 :   RRISCVReg<"s0">,    DwarfRegNum<[8]>;
-  def S1 :   RRISCVReg<"s1">,    DwarfRegNum<[9]>;
-  def A0 :   RRISCVReg<"a0">,    DwarfRegNum<[10]>;
-  def A1 :   RRISCVReg<"a1">,    DwarfRegNum<[11]>;
-  def A2 :   RRISCVReg<"a2">,    DwarfRegNum<[12]>;
-  def A3 :   RRISCVReg<"a3">,    DwarfRegNum<[13]>;
-  def A4 :   RRISCVReg<"a4">,    DwarfRegNum<[14]>;
-  def A5 :   RRISCVReg<"a5">,    DwarfRegNum<[15]>;
-  def A6 :   RRISCVReg<"a6">,    DwarfRegNum<[16]>;
-  def A7 :   RRISCVReg<"a7">,    DwarfRegNum<[17]>;
+def ZERO : RRISCVReg<0, "zero">,   DwarfRegNum<[0]>;
+def RA :   RRISCVReg<1, "ra">,     DwarfRegNum<[1]>;
+def SP :   RRISCVReg<2, "sp">,     DwarfRegNum<[2]>;
+def T0 :   RRISCVReg<5, "t0">,     DwarfRegNum<[5]>;
+def T1 :   RRISCVReg<6, "t1">,     DwarfRegNum<[6]>;
+def T2 :   RRISCVReg<7, "t2">,     DwarfRegNum<[7]>;
+def S0 :   RRISCVReg<8, "s0">,     DwarfRegNum<[8]>;
+def S1 :   RRISCVReg<9, "s1">,     DwarfRegNum<[9]>;
+def A0 :   RRISCVReg<10, "a0">,    DwarfRegNum<[10]>;
+def A1 :   RRISCVReg<11, "a1">,    DwarfRegNum<[11]>;
+def A2 :   RRISCVReg<12, "a2">,    DwarfRegNum<[12]>;
+def A3 :   RRISCVReg<13, "a3">,    DwarfRegNum<[13]>;
+def A4 :   RRISCVReg<14, "a4">,    DwarfRegNum<[14]>;
+def A5 :   RRISCVReg<15, "a5">,    DwarfRegNum<[15]>;
+def A6 :   RRISCVReg<16, "a6">,    DwarfRegNum<[16]>;
+def A7 :   RRISCVReg<17, "a7">,    DwarfRegNum<[17]>;
 
-  def FT0:   RRISCVReg<"ft0">,    DwarfRegNum<[0]>;
-  def FT1:   RRISCVReg<"ft1">,    DwarfRegNum<[1]>;
-  def FT2:   RRISCVReg<"ft2">,    DwarfRegNum<[2]>;
-  def FT3:   RRISCVReg<"ft3">,    DwarfRegNum<[3]>;
-  def FT4:   RRISCVReg<"ft4">,    DwarfRegNum<[4]>;
-  def FT5:   RRISCVReg<"ft5">,    DwarfRegNum<[5]>;
-  def FT6:   RRISCVReg<"ft6">,    DwarfRegNum<[6]>;
-  def FT7:   RRISCVReg<"ft7">,    DwarfRegNum<[7]>;
-  def FS0:   RRISCVReg<"fs0">,    DwarfRegNum<[8]>;
-  def FS1:   RRISCVReg<"fs1">,    DwarfRegNum<[9]>;
-  def FA0:   RRISCVReg<"fa0">,    DwarfRegNum<[10]>;
-  def FA1:   RRISCVReg<"fa1">,    DwarfRegNum<[11]>;
-  def FA2:   RRISCVReg<"fa2">,    DwarfRegNum<[12]>;
-  def FA3:   RRISCVReg<"fa3">,    DwarfRegNum<[13]>;
-  def FA4:   RRISCVReg<"fa4">,    DwarfRegNum<[14]>;
-  def FA5:   RRISCVReg<"fa5">,    DwarfRegNum<[15]>;
-  def FA6:   RRISCVReg<"fa6">,    DwarfRegNum<[16]>;
-  def FA7:   RRISCVReg<"fa7">,    DwarfRegNum<[17]>;
-  def FS2:   RRISCVReg<"fs2">,    DwarfRegNum<[18]>;
-  def FS3:   RRISCVReg<"fs3">,    DwarfRegNum<[19]>;
-  def FS4:   RRISCVReg<"fs4">,    DwarfRegNum<[20]>;
-  def FS5:   RRISCVReg<"fs5">,    DwarfRegNum<[21]>;
-  def FS6:   RRISCVReg<"fs6">,    DwarfRegNum<[22]>;
-  def FS7:   RRISCVReg<"fs7">,    DwarfRegNum<[23]>;
-  def FS8:   RRISCVReg<"fs8">,    DwarfRegNum<[24]>;
-  def FS9:   RRISCVReg<"fs9">,    DwarfRegNum<[25]>;
-  def FS10:  RRISCVReg<"fs10">,   DwarfRegNum<[26]>;
-  def FS11:  RRISCVReg<"fs11">,   DwarfRegNum<[27]>;
-  def FT8:   RRISCVReg<"ft8">,    DwarfRegNum<[28]>;
-  def FT9:   RRISCVReg<"ft9">,    DwarfRegNum<[29]>;
-  def FT10:  RRISCVReg<"ft10">,   DwarfRegNum<[30]>;
-  def FT11:  RRISCVReg<"ft11">,   DwarfRegNum<[31]>;
+def FT0:   RRISCVReg<0, "ft0">,     DwarfRegNum<[0]>;
+def FT1:   RRISCVReg<1, "ft1">,     DwarfRegNum<[1]>;
+def FT2:   RRISCVReg<2, "ft2">,     DwarfRegNum<[2]>;
+def FT3:   RRISCVReg<3, "ft3">,     DwarfRegNum<[3]>;
+def FT4:   RRISCVReg<4, "ft4">,     DwarfRegNum<[4]>;
+def FT5:   RRISCVReg<5, "ft5">,     DwarfRegNum<[5]>;
+def FT6:   RRISCVReg<6, "ft6">,     DwarfRegNum<[6]>;
+def FT7:   RRISCVReg<7, "ft7">,     DwarfRegNum<[7]>;
+def FS0:   RRISCVReg<8, "fS0">,     DwarfRegNum<[8]>;
+def FS1:   RRISCVReg<9, "fS1">,     DwarfRegNum<[9]>;
+def FA0:   RRISCVReg<10, "fa0">,    DwarfRegNum<[10]>;
+def FA1:   RRISCVReg<11, "fa1">,    DwarfRegNum<[11]>;
+def FA2:   RRISCVReg<12, "fa2">,    DwarfRegNum<[12]>;
+def FA3:   RRISCVReg<13, "fa3">,    DwarfRegNum<[13]>;
+def FA4:   RRISCVReg<14, "fa4">,    DwarfRegNum<[14]>;
+def FA5:   RRISCVReg<15, "fa5">,    DwarfRegNum<[15]>;
+def FA6:   RRISCVReg<16, "fa6">,    DwarfRegNum<[16]>;
+def FA7:   RRISCVReg<17, "fa7">,    DwarfRegNum<[17]>;
+def FS2:   RRISCVReg<18, "fs2">,    DwarfRegNum<[18]>;
+def FS3:   RRISCVReg<19, "fs3">,    DwarfRegNum<[19]>;
+def FS4:   RRISCVReg<20, "fs4">,    DwarfRegNum<[20]>;
+def FS5:   RRISCVReg<21, "fs5">,    DwarfRegNum<[21]>;
+def FS6:   RRISCVReg<22, "fs6">,    DwarfRegNum<[22]>;
+def FS7:   RRISCVReg<23, "fs7">,    DwarfRegNum<[23]>;
+def FS8:   RRISCVReg<24, "fs8">,    DwarfRegNum<[24]>;
+def FS9:   RRISCVReg<25, "fs9">,    DwarfRegNum<[25]>;
+def FS10:  RRISCVReg<26, "fs10">,   DwarfRegNum<[26]>;
+def FS11:  RRISCVReg<27, "fs11">,   DwarfRegNum<[27]>;
+def FT8:   RRISCVReg<28, "ft8">,    DwarfRegNum<[28]>;
+def FT9:   RRISCVReg<29, "ft9">,    DwarfRegNum<[29]>;
+def FT10:  RRISCVReg<30, "ft10">,   DwarfRegNum<[30]>;
+def FT11:  RRISCVReg<31, "ft11">,   DwarfRegNum<[31]>;
 
-}
 
 def GPR:RegisterClass<"RRISCV", [i32], 32, (add
   ZERO, RA, SP,

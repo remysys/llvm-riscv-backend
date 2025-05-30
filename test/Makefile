@@ -1,5 +1,5 @@
 BIN := ../llvm-project/build/bin
-FNAME := test35
+FNAME := test36
 SRC := $(FNAME).cpp
 LL := $(FNAME).ll
 ASM := $(FNAME).s
@@ -27,6 +27,7 @@ dag:
 obj:
 	$(BIN)/clang $(SRC) -S -emit-llvm -O0 -o $(LL)
 	$(BIN)/llc -O1 -march=rriscv -filetype=obj $(LL) -o $(OBJ)
+	riscv64-unknown-linux-gnu-objdump -d $(OBJ) 
 
 clean:
 	rm -f *.s *.o *.ll *.bc
