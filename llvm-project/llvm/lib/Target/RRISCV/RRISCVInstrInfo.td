@@ -56,7 +56,7 @@ def : Pat<(setne GPR:$lhs, GPR:$rhs), (SLT ZERO, (XOR GPR:$lhs, GPR:$rhs))>;
 def : Pat<(setge GPR:$rs1, GPR:$rs2), (XORI (SLT GPR:$rs1, GPR:$rs2), 1)>;
 def : Pat<(setle GPR:$rs1, GPR:$rs2), (XORI (SLT GPR:$rs2, GPR:$rs1), 1)>;
 
-def LUI : InstU<(outs GPR:$rd), (ins imm20:$imm),
+def LUI : InstU<0b0110111, (outs GPR:$rd), (ins imm20:$imm),
           "lui $rd, $imm", [], IIAlu>;
 
 def AddrFI : ComplexPattern<iPTR, 2, "SelectAddrFI", [frameindex], [SDNPWantParent]>;
@@ -69,14 +69,11 @@ def RRISCVRET : SDNode<"RRISCVISD::Ret", SDTNone,
 def JALR : InstI<0b1100111, 0b000, (outs GPR:$rd), (ins GPR:$rs1, imm12:$imm),
     "jalr\t$rd, $rs1, $imm", [], IIAlu>;
 
-// def RET : InstI<(outs),(ins), "jalr zero, 0(ra)", [(RRISCVRET)], IIAlu>;
-
-def RET : RRISCVPseudo<(outs),(ins), "ret", [(RRISCVRET)]> {
-  let isReturn = 1;
-  let isTerminator=1;
-  let hasDelaySlot = 1;
-  let isBarrier = 1;
-  let hasCtrlDep = 1;
+def RET : RRISCVPseudo<(outs),(ins), "", [(RRISCVRET)]>, PseudoInstExpansion<(JALR ZERO, RA, 0)> {
+ let isReturn = 1;
+ let isTerminator=1;
+ let isBarrier = 1;
+ let isPseudo = 1;
 }
 
 def SDT_Call : SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
@@ -84,17 +81,15 @@ def SDT_Call : SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
 def RRISCVCall : SDNode<"RRISCVISD::Call", SDT_Call,
                              [SDNPHasChain, SDNPOutGlue, SDNPOptInGlue, SDNPVariadic]>;
 
-def calltarget  : Operand<iPTR>;
-def CALL : RRISCVPseudo<(outs), (ins calltarget:$rs1), "call\t$rs1", []> {
+def CALL : RRISCVPseudo<(outs), (ins GPR:$rs1), "" , [(RRISCVCall GPR:$rs1)]>, PseudoInstExpansion<(JALR RA, GPR:$rs1, 0)> {
   let isCall = 1;
+  let isPseudo = 1;
 }
-
-def : Pat<(RRISCVCall tglobaladdr:$rs1), (CALL calltarget:$rs1)>;
-def : Pat<(RRISCVCall texternalsym:$rs1), (CALL calltarget:$rs1)>;
 
 // for br
 
 def brtarget : Operand<OtherVT>;
+def calltarget : Operand<iPTR>;
 
 def J : InstJ<(outs),(ins brtarget:$imm12),
            "j ${imm12}", [],

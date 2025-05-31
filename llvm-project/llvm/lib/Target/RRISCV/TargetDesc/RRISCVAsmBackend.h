@@ -1,6 +1,7 @@
 #ifndef LLVM_LIB_TARGET_RRISCV_MCTARGETDESC_RRISCVASMBACKEND_H
 #define LLVM_LIB_TARGET_RRISCV_MCTARGETDESC_RRISCVASMBACKEND_H
 
+#include "RRISCVFixupKinds.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/MC/MCAsmBackend.h"
 
@@ -23,7 +24,9 @@ public:
 
   const MCFixupKindInfo &getFixupKindInfo(MCFixupKind Kind) const override;
 
-  unsigned getNumFixupKinds() const override { return 0; }
+  unsigned getNumFixupKinds() const override {
+    return RRISCV::NumTargetFixupKinds;
+  }
 
   bool mayNeedRelaxation(const MCInst &Inst,
                          const MCSubtargetInfo &STI) const override {

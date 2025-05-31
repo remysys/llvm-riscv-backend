@@ -1,8 +1,12 @@
 #include "RRISCVMCCodeEmitter.h"
+#include "RRISCVFixupKinds.h"
+#include "RRISCVMCExpr.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCFixup.h"
 #include "llvm/MC/MCRegisterInfo.h"
+#include "llvm/Support/Casting.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/EndianStream.h"
 using namespace llvm;
 
 void RRISCVMCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
@@ -11,10 +15,14 @@ void RRISCVMCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
   errs() << MI << "\n";
   uint32_t Binary = getBinaryCodeForInstr(MI, Fixups, STI);
 
+  /*
   for (int i = 0; i < 4; ++i) {
     unsigned Shift = i * 8;
     OS << (char)((Binary >> Shift) & 0xff);
-  }
+  } */
+
+  // write it out (little-endian).
+  support::endian::write(OS, Binary, support::little);
 }
 
 unsigned
@@ -30,6 +38,19 @@ RRISCVMCCodeEmitter::getMachineOpValue(const MCInst &MI, const MCOperand &MO,
   }
   // MO must be an Expr.
   assert(MO.isExpr());
+
+  const MCExpr *Expr = MO.getExpr();
+  const RRISCVMCExpr *RRISCVExpr = cast<RRISCVMCExpr>(Expr);
+  RRISCV::Fixups FixupKind = RRISCV::Fixups::fixup_riscv_invalid;
+  switch (RRISCVExpr->getKind()) {
+  case RRISCVMCExpr::TEK_HI:
+    FixupKind = RRISCV::Fixups::fixup_riscv_hi20;
+    break;
+  case RRISCVMCExpr::TEK_LO:
+    FixupKind = RRISCV::Fixups::fixup_riscv_lo12_i;
+    break;
+  }
+  Fixups.push_back(MCFixup::create(0, Expr, MCFixupKind(FixupKind)));
   return 0;
 }
 

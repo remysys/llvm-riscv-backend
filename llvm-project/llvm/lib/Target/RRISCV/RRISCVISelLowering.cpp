@@ -234,15 +234,27 @@ RRISCVTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
     }
   }
 
-  GlobalAddressSDNode *N = dyn_cast<GlobalAddressSDNode>(Callee);
-
-  EVT Ty = getPointerTy(DAG.getDataLayout());
-
   if (GlobalAddressSDNode *N = dyn_cast<GlobalAddressSDNode>(Callee)) {
-    Callee = DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0);
+    EVT Ty = getPointerTy(DAG.getDataLayout());
+    SDLoc DL(N);
+    SDValue Hi =
+        DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, RRISCVII::MO_HI);
+    SDValue Lo =
+        DAG.getTargetGlobalAddress(N->getGlobal(), DL, Ty, 0, RRISCVII::MO_LO);
+
+    SDValue MNHi = SDValue(DAG.getMachineNode(RRISCV::LUI, DL, Ty, Hi), 0);
+
+    Callee = SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
+
   } else if (ExternalSymbolSDNode *S = dyn_cast<ExternalSymbolSDNode>(Callee)) {
     const char *Sym = S->getSymbol();
-    Callee = DAG.getTargetExternalSymbol(Sym, Ty);
+    EVT Ty = getPointerTy(DAG.getDataLayout());
+    SDValue Hi = DAG.getTargetExternalSymbol(
+        Sym, getPointerTy(DAG.getDataLayout()), RRISCVII::MO_HI);
+    SDValue Lo = DAG.getTargetExternalSymbol(
+        Sym, getPointerTy(DAG.getDataLayout()), RRISCVII::MO_LO);
+    SDValue MNHi = SDValue(DAG.getMachineNode(RRISCV::LUI, DL, Ty, Hi), 0);
+    Callee = SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
   }
 
   SmallVector<SDValue, 8> Ops(1, Chain);

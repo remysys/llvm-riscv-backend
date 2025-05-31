@@ -19,12 +19,13 @@ public:
   void printImpl(raw_ostream &OS, const MCAsmInfo *MAI) const override;
 
   bool evaluateAsRelocatableImpl(MCValue &Res, const MCAsmLayout *Layout,
-                                 const MCFixup *Fixup) const override {
-    return false;
-  };
+                                 const MCFixup *Fixup) const override;
   void visitUsedExpr(MCStreamer &Streamer) const override{};
   MCFragment *findAssociatedFragment() const override { return NULL; }
   void fixELFSymbolsInTLSFixups(MCAssembler &Asm) const override{};
+
+  const MCExpr *getSubExpr() const { return Expr; }
+  RRISCVExprKind getKind() const { return Kind; }
 
 private:
   const RRISCVExprKind Kind;

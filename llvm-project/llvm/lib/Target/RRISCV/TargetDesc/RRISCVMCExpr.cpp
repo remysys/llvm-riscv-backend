@@ -23,3 +23,9 @@ void RRISCVMCExpr::printImpl(raw_ostream &OS, const MCAsmInfo *MAI) const {
     break;
   }
 }
+
+bool RRISCVMCExpr::evaluateAsRelocatableImpl(MCValue &Res,
+                                             const MCAsmLayout *Layout,
+                                             const MCFixup *Fixup) const {
+  return getSubExpr()->evaluateAsRelocatable(Res, Layout, Fixup);
+}
