@@ -5,8 +5,8 @@
 #include "llvm/MC/MCFixup.h"
 #include "llvm/MC/MCRegisterInfo.h"
 #include "llvm/Support/Casting.h"
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/EndianStream.h"
+#include "llvm/Support/raw_ostream.h"
 using namespace llvm;
 
 void RRISCVMCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
@@ -49,7 +49,14 @@ RRISCVMCCodeEmitter::getMachineOpValue(const MCInst &MI, const MCOperand &MO,
   case RRISCVMCExpr::TEK_LO:
     FixupKind = RRISCV::Fixups::fixup_riscv_lo12_i;
     break;
+  case RRISCVMCExpr::TEK_JAL:
+    FixupKind = RRISCV::Fixups::fixup_riscv_jal;
+    break;
+  case RRISCVMCExpr::TEK_BRANCH:
+    FixupKind = RRISCV::Fixups::fixup_riscv_branch;
+    break;
   }
+
   Fixups.push_back(MCFixup::create(0, Expr, MCFixupKind(FixupKind)));
   return 0;
 }

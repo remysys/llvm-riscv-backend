@@ -22,8 +22,9 @@ public:
   void emitInstruction(const MachineInstr *MI) override;
   bool emitPseudoExpansionLowering(MCStreamer &OutStreamer,
                                    const MachineInstr *MI);
+
   bool lowerOperand(const MachineOperand &MO, MCOperand &MCOp) const {
-    MCOp = MCInstLowering.LowerOperand(MO);
+    MCOp = MCInstLowering.LowerOperand(MO, 0);
     return true;
   }
 };

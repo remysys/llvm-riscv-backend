@@ -10,12 +10,12 @@ class RRISCVAsmPrinter;
 class RRISCVMCInstLower {
 private:
   RRISCVAsmPrinter &AsmPrinter;
-  MCOperand LowerSymbolOperand(const MachineOperand &MO) const;
+  MCOperand LowerSymbolOperand(const MachineOperand &MO, int IsBranch) const;
 
 public:
   RRISCVMCInstLower(RRISCVAsmPrinter &printer) : AsmPrinter(printer){};
   void Lower(const MachineInstr *MI, MCInst &OutMI) const;
-  MCOperand LowerOperand(const MachineOperand &MO) const;
+  MCOperand LowerOperand(const MachineOperand &MO, int IsBranch) const;
 };
 } // namespace llvm
 

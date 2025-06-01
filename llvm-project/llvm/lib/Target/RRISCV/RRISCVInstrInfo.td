@@ -91,19 +91,18 @@ def CALL : RRISCVPseudo<(outs), (ins GPR:$rs1), "" , [(RRISCVCall GPR:$rs1)]>, P
 def brtarget : Operand<OtherVT>;
 def calltarget : Operand<iPTR>;
 
-def J : InstJ<(outs),(ins brtarget:$imm12),
-           "j ${imm12}", [],
-           IIAlu> {
+def J : InstJ<0b1101111, (outs), (ins brtarget:$imm20),
+    "jal\tzero, ${imm20}", [(br bb:$imm20)],
+    IIAlu> {
   let isTerminator = 1;
+  let rd = 0;
 }
-
-def : Pat<(br bb:$imm), (J brtarget:$imm)>;
 
 // for brcond
 
-def BLT : InstB<(outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm), "blt \t$rs1, $rs2, $imm", [], IIAlu>;
-def BNE : InstB<(outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm), "bne \t$rs1, $rs2, $imm", [], IIAlu>;
-def BEQ : InstB<(outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm), "beq \t$rs1, $rs2, $imm", [], IIAlu>;
+def BLT : InstB<0b1100011, 0b100, (outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm12), "blt \t$rs1, $rs2, $imm12", [], IIAlu>;
+def BNE : InstB<0b1100011, 0b001, (outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm12), "bne \t$rs1, $rs2, $imm12", [], IIAlu>;
+def BEQ : InstB<0b1100011, 0b000, (outs),(ins GPR:$rs1, GPR:$rs2, brtarget:$imm12), "beq \t$rs1, $rs2, $imm12", [], IIAlu>;
 
 def : Pat<(brcond (i32 (setlt GPR:$lhs, GPR:$rhs)), bb:$dst), (BLT GPR:$lhs, GPR:$rhs, brtarget:$dst)>;
 def : Pat<(brcond (i32 (setne GPR:$lhs, GPR:$rhs)), bb:$dst), (BNE GPR:$rhs, GPR:$lhs, brtarget:$dst)>;

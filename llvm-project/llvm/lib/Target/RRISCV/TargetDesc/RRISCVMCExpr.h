@@ -8,11 +8,7 @@
 namespace llvm {
 class RRISCVMCExpr : public MCTargetExpr {
 public:
-  enum RRISCVExprKind {
-    TEK_NONE,
-    TEK_HI,
-    TEK_LO,
-  };
+  enum RRISCVExprKind { TEK_NONE, TEK_HI, TEK_LO, TEK_JAL, TEK_BRANCH };
   RRISCVMCExpr(RRISCVExprKind Kind, const MCExpr *Expr)
       : Kind(Kind), Expr(Expr) {}
 

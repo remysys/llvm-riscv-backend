@@ -12,17 +12,23 @@ using namespace llvm;
 void RRISCVMCInstLower::Lower(const MachineInstr *MI, MCInst &OutMI) const {
   OutMI.setOpcode(MI->getOpcode());
 
+  unsigned int Opcode = MI->getOpcode();
+  int IsBranch = 0;
+  if (Opcode == RRISCV::BLT || Opcode == RRISCV::BEQ || Opcode == RRISCV::BNE) {
+    IsBranch = 1;
+  }
+
   for (unsigned i = 0, e = MI->getNumOperands(); i != e; ++i) {
     const MachineOperand &MO = MI->getOperand(i);
-    MCOperand MCOp = LowerOperand(MO);
+    MCOperand MCOp = LowerOperand(MO, IsBranch);
     if (MCOp.isValid()) {
       OutMI.addOperand(MCOp);
     }
   }
 }
 
-MCOperand
-RRISCVMCInstLower::LowerSymbolOperand(const MachineOperand &MO) const {
+MCOperand RRISCVMCInstLower::LowerSymbolOperand(const MachineOperand &MO,
+                                                int IsBranch) const {
   MCContext &Ctx = AsmPrinter.OutContext;
   RRISCVMCExpr::RRISCVExprKind TargetKind = RRISCVMCExpr::TEK_NONE;
   const MCSymbol *Symbol;
@@ -46,6 +52,11 @@ RRISCVMCInstLower::LowerSymbolOperand(const MachineOperand &MO) const {
     break;
   case MachineOperand::MO_MachineBasicBlock:
     Symbol = MO.getMBB()->getSymbol();
+    if (IsBranch == 0) {
+      TargetKind = RRISCVMCExpr::TEK_JAL;
+    } else {
+      TargetKind = RRISCVMCExpr::TEK_BRANCH;
+    }
     break;
   case MachineOperand::MO_ExternalSymbol:
     Symbol = AsmPrinter.GetExternalSymbolSymbol(MO.getSymbolName());
@@ -64,7 +75,8 @@ RRISCVMCInstLower::LowerSymbolOperand(const MachineOperand &MO) const {
   return MCOperand::createExpr(Expr);
 }
 
-MCOperand RRISCVMCInstLower::LowerOperand(const MachineOperand &MO) const {
+MCOperand RRISCVMCInstLower::LowerOperand(const MachineOperand &MO,
+                                          int IsBranch) const {
   switch (MO.getType()) {
   case MachineOperand::MO_Register:
     return MCOperand::createReg(MO.getReg());
@@ -74,7 +86,7 @@ MCOperand RRISCVMCInstLower::LowerOperand(const MachineOperand &MO) const {
   case MachineOperand::MO_MachineBasicBlock:
   case MachineOperand::MO_ExternalSymbol:
   case MachineOperand::MO_ConstantPoolIndex:
-    return LowerSymbolOperand(MO);
+    return LowerSymbolOperand(MO, IsBranch);
   }
 
   return MCOperand();
