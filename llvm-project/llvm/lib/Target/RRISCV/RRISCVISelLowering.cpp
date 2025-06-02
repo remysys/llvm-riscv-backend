@@ -307,9 +307,13 @@ SDValue RRISCVTargetLowering::lowerConstantPool(SDValue Op,
   EVT Ty = Op.getValueType();
   ConstantPoolSDNode *N = cast<ConstantPoolSDNode>(Op);
   SDLoc DL(N);
-  SDValue CPAddr = DAG.getTargetConstantPool(N->getConstVal(), Ty,
-                                             N->getAlign(), N->getOffset(), 0);
-  SDValue Addr = SDValue(DAG.getMachineNode(RRISCV::LEA, DL, Ty, CPAddr), 0);
+
+  SDValue Hi = DAG.getTargetConstantPool(N->getConstVal(), Ty, N->getAlign(),
+                                         N->getOffset(), RRISCVII::MO_HI);
+  SDValue Lo = DAG.getTargetConstantPool(N->getConstVal(), Ty, N->getAlign(),
+                                         N->getOffset(), RRISCVII::MO_LO);
+  SDValue MNHi = SDValue(DAG.getMachineNode(RRISCV::LUI, DL, Ty, Hi), 0);
+  SDValue Addr = SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
 
   return Addr;
 }

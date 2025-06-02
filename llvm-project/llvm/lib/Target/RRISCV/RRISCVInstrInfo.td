@@ -4,11 +4,6 @@ def imm12 : Operand<i32>, ImmLeaf<i32, [{return isInt<12>(Imm);}]>;
 def imm20 : Operand<i32>, ImmLeaf<i32, [{return isInt<20>(Imm);}]>;
 def imm32 : Operand<i32>, ImmLeaf<i32, [{return isInt<32>(Imm);}]>;
 
-def mem : Operand<iPTR> {
-  let MIOperandInfo = (ops GPR, imm12);
-  let PrintMethod = "printMemOperand";  
-}
-
 def mem_stack : Operand<iPTR> {
   let MIOperandInfo = (ops GPR, imm12);
   let PrintMethod = "printMemStackOperand";
@@ -110,8 +105,8 @@ def : Pat<(brcond (i32 (seteq GPR:$lhs, GPR:$rhs)), bb:$dst), (BEQ GPR:$rhs, GPR
 def : Pat<(brcond (i32 (setgt GPR:$lhs, GPR:$rhs)), bb:$dst), (BLT GPR:$rhs, GPR:$lhs, brtarget:$dst)>;
 
 multiclass STORE<bits<7> opcode, bits<3> funct3, PatFrag op, string asm, DAGOperand ty> {
-  def FI : InstS<opcode, funct3, (outs), (ins ty:$ra, mem:$addr), !strconcat(asm, "\t$ra, $addr"), [(op ty:$ra, AddrFI:$addr)], IIAlu>;
-  def R : InstS<opcode, funct3, (outs), (ins ty:$ra, GPR:$rb), !strconcat(asm, "\t$ra, 0($rb)"), [(op ty:$ra, GPR:$rb)], IIAlu> {
+  def FI : InstS<opcode, funct3, (outs), (ins ty:$rs2, GPR:$rs1, imm12:$imm), !strconcat(asm, "\t$rs2, $imm($rs1)"), [(op ty:$rs2, (AddrFI GPR:$rs1, imm12:$imm))], IIAlu>;
+  def R :  InstS<opcode, funct3, (outs), (ins ty:$rs2, GPR:$rs1), !strconcat(asm, "\t$rs2, 0($rs1)"), [(op ty:$rs2, GPR:$rs1)], IIAlu> {
     let imm = 0;
   }
 }
@@ -123,8 +118,8 @@ defm STORF:STORE<0b0100111, 0b010, store, "fsw", FPR>;
 defm STORD:STORE<0b0100111, 0b011, store, "fsd", FPR64>;
 
 multiclass LOAD<bits<7> opcode, bits<3> funct3, PatFrag op, string asm, DAGOperand ty> {
-  def FI : InstI<opcode, funct3, (outs ty:$ra), (ins mem:$addr), !strconcat(asm, "\t$ra, $addr"), [(set ty:$ra, (op AddrFI:$addr))], IIAlu>;
-  def R :  InstI<opcode, funct3, (outs ty:$ra), (ins GPR:$rb), !strconcat(asm, "\t$ra, 0($rb)"), [(set ty:$ra, (op GPR:$rb))], IIAlu> {
+  def FI : InstI<opcode, funct3, (outs ty:$rd), (ins GPR:$rs1, imm12:$imm), !strconcat(asm, "\t$rd, $imm($rs1)"), [(set ty:$rd, (op (AddrFI GPR:$rs1, imm12:$imm)))], IIAlu>;
+  def R :  InstI<opcode, funct3, (outs ty:$rd), (ins GPR:$rs1), !strconcat(asm, "\t$rd, 0($rs1)"), [(set ty:$rd, (op GPR:$rs1))], IIAlu> {
     let imm = 0;
   }
 }
@@ -138,8 +133,6 @@ defm LOADSB : LOAD<0b0000011, 0b000, sextloadi8, "lb", GPR>;
 defm LOADZB : LOAD<0b0000011, 0b000, zextloadi8, "lb", GPR>;
 defm LOADF  : LOAD<0b0000111, 0b010, load, "flw", FPR>;
 defm LOADFD : LOAD<0b0000111, 0b011, load, "fld", FPR64>;
-
-def LEA : RRISCVPseudo<(outs GPR:$rd),(ins calltarget:$rs1), "la\t$rd, $rs1", []>;
 
 def LEA_STACK : RRISCVPseudo<(outs GPR:$rd),(ins mem_stack:$mem), "addi \t$rd, $mem", [(set GPR:$rd, AddrFI:$mem)]>;
 
