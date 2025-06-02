@@ -19,6 +19,7 @@ class RRISCVTargetLowering : public TargetLowering {
 private:
   SDValue lowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const;
   SDValue lowerConstantPool(SDValue Op, SelectionDAG &DAG) const;
+  SDValue lowerConstant(SDValue Op, SelectionDAG &DAG) const;
   const RRISCVSubtarget &Subtarget;
 
 public:

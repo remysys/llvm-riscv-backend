@@ -19,6 +19,7 @@ RRISCVTargetLowering::RRISCVTargetLowering(const TargetMachine &TM,
   addRegisterClass(MVT::f64, &RRISCV::FPR64RegClass);
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
   setOperationAction(ISD::ConstantPool, MVT::i32, Custom);
+  setOperationAction(ISD::Constant, MVT::i32, Custom);
   // expand br_cc to setcc and brcond instructions
   setOperationAction(ISD::BR_CC, MVT::i32, Expand);
   setOperationAction(ISD::BR_CC, MVT::f32, Expand);
@@ -154,6 +155,8 @@ SDValue RRISCVTargetLowering::LowerOperation(SDValue Op,
     return lowerGlobalAddress(Op, DAG);
   case ISD::ConstantPool:
     return lowerConstantPool(Op, DAG);
+  case ISD::Constant:
+    return lowerConstant(Op, DAG);
   }
   return SDValue();
 }
@@ -316,4 +319,40 @@ SDValue RRISCVTargetLowering::lowerConstantPool(SDValue Op,
   SDValue Addr = SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, Ty, MNHi, Lo), 0);
 
   return Addr;
+}
+
+/*
+#define RISCV_CONST_HIGH_PART(VALUE) (((VALUE) + (1 << 11)) & 0xfffff000)
+#define RISCV_CONST_LOW_PART(VALUE) ((VALUE)-RISCV_CONST_HIGH_PART(VALUE))
+*/
+
+#define RISCV_CONST_HIGH_PART(VALUE) (VALUE & 0xfffff000)
+#define RISCV_CONST_LOW_PART(VALUE)  (VALUE & 0x00000fff)
+
+SDValue RRISCVTargetLowering::lowerConstant(SDValue Op,
+                                            SelectionDAG &DAG) const {
+  SDLoc DL(Op);
+  EVT VT = Op.getValueType();
+
+  int32_t Imm = cast<ConstantSDNode>(Op)->getSExtValue();
+
+  if (isInt<12>(Imm)) {
+    SDValue SDImm = DAG.getTargetConstant(Imm, DL, VT);
+    SDValue Op =
+        SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, VT,
+                                   DAG.getRegister(RRISCV::ZERO, VT), SDImm),
+                0);
+    return Op;
+  } else {
+    uint32_t Hi = RISCV_CONST_HIGH_PART(Imm);
+    uint32_t Lo = RISCV_CONST_LOW_PART(Imm);
+    SDValue SDImmHi = DAG.getTargetConstant(Hi >> 12, DL, VT);
+    SDValue SDImmLo = DAG.getTargetConstant(Lo, DL, VT);
+    SDValue LuiOp =
+        SDValue(DAG.getMachineNode(RRISCV::LUI, DL, VT, SDImmHi), 0);
+    SDValue AddiOp =
+        SDValue(DAG.getMachineNode(RRISCV::ADDI, DL, VT, LuiOp, SDImmLo), 0);
+    return AddiOp;
+  }
+  return SDValue();
 }

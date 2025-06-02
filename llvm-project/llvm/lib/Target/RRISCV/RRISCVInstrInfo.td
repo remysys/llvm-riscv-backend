@@ -51,8 +51,6 @@ def LUI : InstU<0b0110111, (outs GPR:$rd), (ins imm20:$imm),
 
 def AddrFI : ComplexPattern<iPTR, 2, "SelectAddrFI", [frameindex], [SDNPWantParent]>;
 
-def : Pat<(i32 imm12:$in), (ADDI ZERO, imm12:$in)>;
-
 def RRISCVRET : SDNode<"RRISCVISD::Ret", SDTNone,
                              [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
 
@@ -131,10 +129,6 @@ defm LOADFD : LOAD<0b0000111, 0b011, load, "fld", FPR64>;
 
 def : Pat<(AddrFI GPR:$rs1, imm12:$imm), (ADDI GPR:$rs1, imm12:$imm)>;
 
-def LI : RRISCVPseudo<(outs GPR:$rd), (ins imm32:$rs1), "li\t$rd, $rs1", []>;
-def : Pat<(i32 imm32:$in), (LI imm32:$in)>;
-
-
 class ArithLogicF<bits<7> funct7, bits<3> funct3, string inst, SDNode node>:
       InstR<0b1010011, funct7, funct3, (outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2),
       !strconcat(inst, "\t$rd, $rs1, $rs2"),
@@ -169,7 +163,7 @@ def : Pat<(setole FPR:$lhs, FPR:$rhs), (FLES FPR:$lhs, FPR:$rhs)>;
 def : Pat<(setolt FPR:$lhs, FPR:$rhs), (FLTS FPR:$lhs, FPR:$rhs)>;
 def : Pat<(setoeq FPR:$lhs, FPR:$rhs), (FEQS FPR:$lhs, FPR:$rhs)>;
 
-def : Pat<(brcond GPR:$cond, bb:$dst), (BEQ GPR:$cond, (LI 1), brtarget:$dst)>;
+def : Pat<(brcond GPR:$cond, bb:$dst), (BEQ GPR:$cond, (ADDI ZERO, 1), brtarget:$dst)>;
 
 
 def FCVTSD : InstR<0b1010011, 0b0100000, 0b000, (outs FPR:$rd), (ins FPR64:$rs1),
