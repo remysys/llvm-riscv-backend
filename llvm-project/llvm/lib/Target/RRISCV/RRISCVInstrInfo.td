@@ -4,11 +4,6 @@ def imm12 : Operand<i32>, ImmLeaf<i32, [{return isInt<12>(Imm);}]>;
 def imm20 : Operand<i32>, ImmLeaf<i32, [{return isInt<20>(Imm);}]>;
 def imm32 : Operand<i32>, ImmLeaf<i32, [{return isInt<32>(Imm);}]>;
 
-def mem_stack : Operand<iPTR> {
-  let MIOperandInfo = (ops GPR, imm12);
-  let PrintMethod = "printMemStackOperand";
-}
-
 class ArithLogicI <bits<7> opcode, bits<3> funct3, string inst, SDNode node>:
       InstI<opcode, funct3, (outs GPR:$rd), (ins GPR:$rs1, imm12:$imm),
       !strconcat(inst, "\t$rd, $rs1, $imm"),
@@ -134,8 +129,7 @@ defm LOADZB : LOAD<0b0000011, 0b000, zextloadi8, "lb", GPR>;
 defm LOADF  : LOAD<0b0000111, 0b010, load, "flw", FPR>;
 defm LOADFD : LOAD<0b0000111, 0b011, load, "fld", FPR64>;
 
-def LEA_STACK : RRISCVPseudo<(outs GPR:$rd),(ins mem_stack:$mem), "addi \t$rd, $mem", [(set GPR:$rd, AddrFI:$mem)]>;
-
+def : Pat<(AddrFI GPR:$rs1, imm12:$imm), (ADDI GPR:$rs1, imm12:$imm)>;
 
 def LI : RRISCVPseudo<(outs GPR:$rd), (ins imm32:$rs1), "li\t$rd, $rs1", []>;
 def : Pat<(i32 imm32:$in), (LI imm32:$in)>;

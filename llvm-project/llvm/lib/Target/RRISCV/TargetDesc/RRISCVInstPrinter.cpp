@@ -44,10 +44,3 @@ void RRISCVInstPrinter::printOperand(const MCInst *MI, uint64_t _Address,
                                      unsigned OpNum, raw_ostream &O) {
   printOperand(MI, OpNum, O);
 }
-
-void RRISCVInstPrinter::printMemStackOperand(const MCInst *MI, int opNum,
-                                             raw_ostream &O) {
-  printOperand(MI, opNum, O);
-  O << ",";
-  printOperand(MI, opNum + 1, O);
-}
