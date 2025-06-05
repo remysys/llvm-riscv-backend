@@ -178,6 +178,19 @@ def FCVTDS : InstR<0b1010011, 0b0100001, 0b000, (outs FPR64:$rd), (ins FPR:$rs1)
   let rs2 = 0;
 }
 
+def FCVTDW : InstR<0b1010011, 0b1101001, 0b000, (outs FPR64:$rd), (ins GPR:$rs1),
+    "fcvt.d.w\t$rd, $rs1", [(set FPR64:$rd, (sint_to_fp GPR:$rs1))], IIAlu> 
+{
+  let rs2 = 0;
+}
+
+def FCVTSW : InstR<0b1010011, 0b1101000, 0b000, (outs FPR:$rd), (ins GPR:$rs1),
+    "fcvt.s.w\t$rd, $rs1", [(set FPR:$rd, (sint_to_fp GPR:$rs1))], IIAlu> 
+{
+  let rs2 = 0;
+}
+
+
 class ArithLogicF64<bits<7> funct7, bits<3> funct3, string inst, SDNode node>:
     InstR<0b1010011, funct7, funct3, (outs FPR64:$rd), (ins FPR64:$rs1, FPR64:$rs2),
     !strconcat(inst, "\t$rd, $rs1, $rs2"),
@@ -206,9 +219,17 @@ def : Pat<(setult FPR64:$lhs, FPR64:$rhs), (FLTD FPR64:$lhs, FPR64:$rhs)>;
 def : Pat<(setoeq FPR64:$lhs, FPR64:$rhs), (FEQD FPR64:$lhs, FPR64:$rhs)>;
 
 
-def FABSS:RRISCVPseudo<(outs FPR:$rd), (ins FPR:$rs1),
-      "fabs.s $rd, $rs1",
-      [(set FPR:$rd, (fabs FPR:$rs1))]>;
+def FSGNJXS : InstR<0b1010011, 0b0010000, 0b010, (outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2),
+      "fsgnjx.s\t$rd, $rs1, $rs2", [], IIAlu>;
+
+def FSGNJXD : InstR<0b1010011, 0b0010001, 0b010, (outs FPR64:$rd), (ins FPR64:$rs1, FPR64:$rs2),
+      "fsgnjx.d\t$rd, $rs1, $rs2", [], IIAlu>;
+
+def FABSS:RRISCVPseudo<(outs FPR:$rd), (ins FPR:$rs1),"", [(set FPR:$rd, (fabs FPR:$rs1))]>,
+          PseudoInstExpansion<(FSGNJXS FPR:$rd, FPR:$rs1, FPR:$rs1)>;
+
+def FABSD:RRISCVPseudo<(outs FPR64:$rd), (ins FPR64:$rs1),"", [(set FPR64:$rd, (fabs FPR64:$rs1))]>,
+          PseudoInstExpansion<(FSGNJXD FPR64:$rd, FPR64:$rs1, FPR64:$rs1)>;
 
 def FMAXS : ArithLogicF<0b0010100, 0b001, "fmax.s", fmaxnum>;
 def FMINS : ArithLogicF<0b0010100, 0b000, "fmin.s", fminnum>;
@@ -217,3 +238,9 @@ def FMADDS : InstR4<0b1000011, 0b00, 0b000, (outs FPR:$rd), (ins FPR:$rs1, FPR:$
     "fmadd.s\t$rd, $rs1, $rs2, $rs3",
     [(set FPR:$rd, (fadd (fmul FPR:$rs1, FPR:$rs2), FPR:$rs3))],
     IIAlu>;
+
+def FSGNJNS : InstR<0b1010011, 0b0010000, 0b001, (outs FPR:$rd), (ins FPR:$rs1, FPR:$rs2),
+      "fsgnjn.s\t$rd, $rs1, $rs2", [], IIAlu>;
+
+def FNEGS:RRISCVPseudo<(outs FPR:$rd), (ins FPR:$rs1),"", [(set FPR:$rd, (fneg FPR:$rs1))]>,
+          PseudoInstExpansion<(FSGNJNS FPR:$rd, FPR:$rs1, FPR:$rs1)>;

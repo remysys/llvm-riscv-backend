@@ -1,5 +1,5 @@
 BIN := ../llvm-project/build/bin
-FNAME := test42
+FNAME := test43
 SRC := $(FNAME).cpp
 LL := $(FNAME).ll
 ASM := $(FNAME).s
