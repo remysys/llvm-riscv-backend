@@ -3,6 +3,7 @@
 
 #include "llvm/MC/MCAsmLayout.h"
 #include "llvm/MC/MCExpr.h"
+#include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCValue.h"
 
 namespace llvm {
@@ -16,9 +17,12 @@ public:
 
   bool evaluateAsRelocatableImpl(MCValue &Res, const MCAsmLayout *Layout,
                                  const MCFixup *Fixup) const override;
-  void visitUsedExpr(MCStreamer &Streamer) const override{};
+  void visitUsedExpr(MCStreamer &Streamer) const override {
+    Streamer.visitUsedExpr(*Expr);
+  }
+
   MCFragment *findAssociatedFragment() const override { return NULL; }
-  void fixELFSymbolsInTLSFixups(MCAssembler &Asm) const override{};
+  void fixELFSymbolsInTLSFixups(MCAssembler &Asm) const override {};
 
   const MCExpr *getSubExpr() const { return Expr; }
   RRISCVExprKind getKind() const { return Kind; }
