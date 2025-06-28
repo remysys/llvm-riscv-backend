@@ -12,7 +12,7 @@ using namespace llvm;
 void RRISCVMCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
                                             SmallVectorImpl<MCFixup> &Fixups,
                                             const MCSubtargetInfo &STI) const {
-  errs() << MI << "\n";
+  // errs() << MI << "\n";
   uint32_t Binary = getBinaryCodeForInstr(MI, Fixups, STI);
 
   /*
