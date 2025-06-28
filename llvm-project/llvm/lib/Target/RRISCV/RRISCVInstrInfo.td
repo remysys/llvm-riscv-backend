@@ -39,10 +39,16 @@ def SRL : ArithLogicR<0b0000000, 0b101, "srl", srl>;
 def SLT : InstR<0b0110011, 0b0000000, 0b010, (outs GPR:$rd),(ins GPR:$rs1, GPR:$rs2),
             "slt\t$rd, $rs1, $rs2", [], IIAlu>;
 
+def SLTU : InstR<0b0110011, 0b0000000, 0b011, (outs GPR:$rd),(ins GPR:$rs1, GPR:$rs2),
+            "sltu\t$rd, $rs1, $rs2", [], IIAlu>;
+
+def SLTIU : InstI<0b0010011, 0b011, (outs GPR:$rd),(ins GPR:$rs1, imm12:$imm),
+            "sltiu\t$rd, $rs1, $imm", [], IIAlu>;
+
 def : Pat<(setgt GPR:$lhs, GPR:$rhs), (SLT GPR:$rhs, GPR:$lhs)>;
 def : Pat<(setlt GPR:$lhs, GPR:$rhs), (SLT GPR:$lhs, GPR:$rhs)>;
-def : Pat<(seteq GPR:$lhs, GPR:$rhs), (SLT (XOR GPR:$lhs, GPR:$rhs), 1)>;
-def : Pat<(setne GPR:$lhs, GPR:$rhs), (SLT ZERO, (XOR GPR:$lhs, GPR:$rhs))>;
+def : Pat<(seteq GPR:$lhs, GPR:$rhs), (SLTIU (XOR GPR:$lhs, GPR:$rhs), 1)>;
+def : Pat<(setne GPR:$lhs, GPR:$rhs), (SLTU ZERO, (XOR GPR:$lhs, GPR:$rhs))>;
 def : Pat<(setge GPR:$rs1, GPR:$rs2), (XORI (SLT GPR:$rs1, GPR:$rs2), 1)>;
 def : Pat<(setle GPR:$rs1, GPR:$rs2), (XORI (SLT GPR:$rs2, GPR:$rs1), 1)>;
 
@@ -169,7 +175,7 @@ def : Pat<(brcond GPR:$cond, bb:$dst), (BEQ GPR:$cond, (ADDI ZERO, 1), brtarget:
 def FCVTSD : InstR<0b1010011, 0b0100000, 0b000, (outs FPR:$rd), (ins FPR64:$rs1),
     "fcvt.s.d\t$rd, $rs1", [(set FPR:$rd, (fpround FPR64:$rs1))], IIAlu> 
 {
-  let rs2 = 0;
+  let rs2 = 0b00001;
 }
 
 def FCVTDS : InstR<0b1010011, 0b0100001, 0b000, (outs FPR64:$rd), (ins FPR:$rs1),

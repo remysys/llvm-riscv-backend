@@ -1,3 +1,5 @@
+#include <assert.h>
+#include <stdio.h>
 
 int foo() {
   float x = 0.1f;
@@ -27,4 +29,10 @@ int foo() {
   }
 
   return ret;
+}
+
+int main() {
+  assert(foo() == 6);
+  printf("test passed\n");
+  return 0;
 }

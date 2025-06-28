@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <stdio.h>
+
 int a, b, c, d, e, f;
 
 void foo() {
@@ -24,4 +27,25 @@ void foo() {
   if (f < 1) {
     f += 1;
   }
+}
+
+int main() {
+  a = 2;
+  b = 2;
+  c = 1;
+  d = 2;
+  e = 1;
+  f = 0;
+
+  foo();
+
+  assert(a == 3);
+  assert(b == 3);
+  assert(c == 2);
+  assert(d == 3);
+  assert(e == 2);
+  assert(f == 1);
+
+  printf("test passed\n");
+  return 0;
 }

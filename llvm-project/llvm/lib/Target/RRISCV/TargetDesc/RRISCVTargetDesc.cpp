@@ -2,6 +2,7 @@
 #include "RRISCVAsmBackend.h"
 #include "RRISCVInstPrinter.h"
 #include "RRISCVMCCodeEmitter.h"
+#include "RRISCVTargetStreamer.h"
 #include "llvm/ADT/None.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCInstrInfo.h"
@@ -66,6 +67,11 @@ static MCAsmBackend *createRRISCVAsmBackend(const Target &T,
   return new RRISCVAsmBackend(T, STI.getTargetTriple());
 }
 
+static MCTargetStreamer *
+createRRISCVTargetStreamer(MCStreamer &S, const MCSubtargetInfo &STI) {
+  return new RRISCVTargetStreamer(S, STI);
+}
+
 extern "C" void LLVMInitializeRRISCVTargetMC() {
   TargetRegistry::RegisterMCRegInfo(TheRRISCVTarget,
                                     createRRISCVMCRegisterInfo);
@@ -78,4 +84,6 @@ extern "C" void LLVMInitializeRRISCVTargetMC() {
   TargetRegistry::RegisterMCCodeEmitter(TheRRISCVTarget,
                                         createRRISCVMCCodeEmitter);
   TargetRegistry::RegisterMCAsmBackend(TheRRISCVTarget, createRRISCVAsmBackend);
+  TargetRegistry::RegisterObjectTargetStreamer(TheRRISCVTarget,
+                                               createRRISCVTargetStreamer);
 }

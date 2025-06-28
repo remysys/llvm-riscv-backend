@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <stdio.h>
+
 int bar(int a, int b) { return a + b; }
 
 int foo() {
@@ -5,7 +8,8 @@ int foo() {
   return ret;
 }
 
-int test() {
-  int result = foo();
-  return result;
+int main() {
+  assert(foo() == 7); // Check if the result matches the expected value
+  printf("test passed\n");
+  return 0;
 }

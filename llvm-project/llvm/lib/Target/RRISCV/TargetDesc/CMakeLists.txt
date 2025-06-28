@@ -5,4 +5,5 @@ add_llvm_library(LLVMRRISCVDesc
   RRISCVMCCodeEmitter.cpp
   RRISCVAsmBackend.cpp
   RRISCVELFObjectWriter.cpp
+  RRISCVTargetStreamer.cpp
 )

@@ -1,3 +1,5 @@
+#include <assert.h>
+#include <stdio.h>
 typedef struct {
   int a0;
   int a1;
@@ -17,4 +19,16 @@ X bar() {
   return x;
 }
 
-void foo() { X x = bar(); }
+X foo() {
+  X x = bar();
+  return x;
+}
+
+int main() {
+  X x = foo();
+  assert(x.a0 == 1);
+  assert(x.a1 == 2);
+  assert(x.a7 == 3);
+  printf("test passed\n");
+  return 0;
+}

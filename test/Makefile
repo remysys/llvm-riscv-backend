@@ -1,5 +1,5 @@
 BIN := ../llvm-project/build/bin
-FNAME := hello
+FNAME := test0
 OUT := $(FNAME)_rv32
 SRC := $(FNAME).cpp
 LL := $(FNAME).ll
@@ -37,16 +37,16 @@ obj: ir
 	riscv64-unknown-linux-gnu-readelf -r $(OBJ)
 
 run: obj
-	riscv64-unknown-linux-gnu-gcc -march=rv32g -mabi=ilp32 -static -o $(OUT) $(OBJ)
+	riscv64-unknown-linux-gnu-gcc -march=rv32g -mabi=ilp32d -static -o $(OUT) $(OBJ)
 	qemu-riscv32 ./$(OUT)
 
 objs: asm
-	riscv64-unknown-linux-gnu-gcc -march=rv32g -mabi=ilp32 -c $(ASM) -o $(OBJ_S)
+	riscv64-unknown-linux-gnu-gcc -march=rv32g -mabi=ilp32d -c $(ASM) -o $(OBJ_S)
 	riscv64-unknown-linux-gnu-objdump -d $(OBJ_S)
 	riscv64-unknown-linux-gnu-readelf -r $(OBJ_S)
 
 runs: asm
-	riscv64-unknown-linux-gnu-gcc -march=rv32g -mabi=ilp32 -static -o $(OUT_S) $(ASM)
+	riscv64-unknown-linux-gnu-gcc -march=rv32g -mabi=ilp32d -static -o $(OUT_S) $(ASM)
 	qemu-riscv32 ./$(OUT_S)
 
 dis:

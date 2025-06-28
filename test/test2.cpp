@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <stdio.h>
+
 void foo() {
   int a = 0xff;
   int b = a + 1;
@@ -10,4 +13,10 @@ void foo() {
   int i = b | 1;
   int j = b & c & d;
   int k = b | c | 1;
+}
+
+int main() {
+  foo();
+  printf("test passed\n");
+  return 0;
 }
